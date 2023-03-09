@@ -12,5 +12,6 @@ message ProtobufMessage {
   repeated bool bool_type = 7;
   repeated string string_type = 8;
   repeated bytes bytes_type = 9;
+  optional int64 msg_id = 10;
 }
 

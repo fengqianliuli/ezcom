@@ -10,6 +10,8 @@ class ProtobufMessage;
 class Message final {
   friend class RequestorImpl;
   friend class ResponderImpl;
+  friend class AsyncRequestorImpl;
+  friend class AsyncResponderImpl;
 
  public:
   Message();
@@ -59,6 +61,10 @@ class Message final {
   bool GetBool(int index) const;
   std::string GetString(int index) const;
   std::string GetBytes(int index) const;
+
+ private:
+  void SetMsgId(const int64_t& msg_id);
+  int64_t GetMsgId() const;
 
  private:
   std::shared_ptr<ProtobufMessage> proto_msg_;

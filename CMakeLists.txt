@@ -17,11 +17,14 @@ target_link_directories(ezcom PUBLIC /usr/local/lib)
 target_link_libraries(ezcom PUBLIC libprotobuf.a zmq pthread)
 
 # build simple example
-add_executable(simple example/simple.cpp)
-target_link_libraries(simple ezcom)
+add_executable(sync_example example/sync_example.cpp)
+target_link_libraries(sync_example ezcom)
+add_executable(async_example example/async_example.cpp)
+target_link_libraries(async_example ezcom)
 
 # install ezcom library and simple binary
 set(CMAKE_INSTALL_PREFIX install)
 install(TARGETS ezcom DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
-install(TARGETS simple DESTINATION bin)
+install(TARGETS sync_example DESTINATION bin)
+install(TARGETS async_example DESTINATION bin)

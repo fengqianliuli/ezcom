@@ -184,6 +184,7 @@ class ProtobufMessage final :
     kBoolTypeFieldNumber = 7,
     kStringTypeFieldNumber = 8,
     kBytesTypeFieldNumber = 9,
+    kMsgIdFieldNumber = 10,
   };
   // repeated double double_type = 1;
   int double_type_size() const;
@@ -387,6 +388,19 @@ class ProtobufMessage final :
   std::string* _internal_add_bytes_type();
   public:
 
+  // optional int64 msg_id = 10;
+  bool has_msg_id() const;
+  private:
+  bool _internal_has_msg_id() const;
+  public:
+  void clear_msg_id();
+  int64_t msg_id() const;
+  void set_msg_id(int64_t value);
+  private:
+  int64_t _internal_msg_id() const;
+  void _internal_set_msg_id(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:ezcom.ProtobufMessage)
  private:
   class _Internal;
@@ -394,6 +408,8 @@ class ProtobufMessage final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > double_type_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > float_type_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > int32_type_;
@@ -407,7 +423,7 @@ class ProtobufMessage final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > bool_type_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> string_type_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> bytes_type_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  int64_t msg_id_;
   friend struct ::TableStruct_ezcom_2eproto;
 };
 // ===================================================================
@@ -898,6 +914,34 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 ProtobufMessage::mutable_bytes_type() {
   // @@protoc_insertion_point(field_mutable_list:ezcom.ProtobufMessage.bytes_type)
   return &bytes_type_;
+}
+
+// optional int64 msg_id = 10;
+inline bool ProtobufMessage::_internal_has_msg_id() const {
+  bool value = (_has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool ProtobufMessage::has_msg_id() const {
+  return _internal_has_msg_id();
+}
+inline void ProtobufMessage::clear_msg_id() {
+  msg_id_ = int64_t{0};
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline int64_t ProtobufMessage::_internal_msg_id() const {
+  return msg_id_;
+}
+inline int64_t ProtobufMessage::msg_id() const {
+  // @@protoc_insertion_point(field_get:ezcom.ProtobufMessage.msg_id)
+  return _internal_msg_id();
+}
+inline void ProtobufMessage::_internal_set_msg_id(int64_t value) {
+  _has_bits_[0] |= 0x00000001u;
+  msg_id_ = value;
+}
+inline void ProtobufMessage::set_msg_id(int64_t value) {
+  _internal_set_msg_id(value);
+  // @@protoc_insertion_point(field_set:ezcom.ProtobufMessage.msg_id)
 }
 
 #ifdef __GNUC__

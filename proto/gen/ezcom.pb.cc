@@ -35,7 +35,8 @@ PROTOBUF_CONSTEXPR ProtobufMessage::ProtobufMessage(
   , _uint64_type_cached_byte_size_(0)
   , bool_type_()
   , string_type_()
-  , bytes_type_(){}
+  , bytes_type_()
+  , msg_id_(int64_t{0}){}
 struct ProtobufMessageDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ProtobufMessageDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -51,7 +52,7 @@ static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_ezcom
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_ezcom_2eproto = nullptr;
 
 const uint32_t TableStruct_ezcom_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::ezcom::ProtobufMessage, _has_bits_),
   PROTOBUF_FIELD_OFFSET(::ezcom::ProtobufMessage, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -66,9 +67,20 @@ const uint32_t TableStruct_ezcom_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   PROTOBUF_FIELD_OFFSET(::ezcom::ProtobufMessage, bool_type_),
   PROTOBUF_FIELD_OFFSET(::ezcom::ProtobufMessage, string_type_),
   PROTOBUF_FIELD_OFFSET(::ezcom::ProtobufMessage, bytes_type_),
+  PROTOBUF_FIELD_OFFSET(::ezcom::ProtobufMessage, msg_id_),
+  ~0u,
+  ~0u,
+  ~0u,
+  ~0u,
+  ~0u,
+  ~0u,
+  ~0u,
+  ~0u,
+  ~0u,
+  0,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::ezcom::ProtobufMessage)},
+  { 0, 16, -1, sizeof(::ezcom::ProtobufMessage)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -76,16 +88,17 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_ezcom_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013ezcom.proto\022\005ezcom\"\310\001\n\017ProtobufMessage"
+  "\n\013ezcom.proto\022\005ezcom\"\350\001\n\017ProtobufMessage"
   "\022\023\n\013double_type\030\001 \003(\001\022\022\n\nfloat_type\030\002 \003("
   "\002\022\022\n\nint32_type\030\003 \003(\005\022\022\n\nint64_type\030\004 \003("
   "\003\022\023\n\013uint32_type\030\005 \003(\r\022\023\n\013uint64_type\030\006 "
   "\003(\004\022\021\n\tbool_type\030\007 \003(\010\022\023\n\013string_type\030\010 "
-  "\003(\t\022\022\n\nbytes_type\030\t \003(\014b\006proto3"
+  "\003(\t\022\022\n\nbytes_type\030\t \003(\014\022\023\n\006msg_id\030\n \001(\003H"
+  "\000\210\001\001B\t\n\007_msg_idb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_ezcom_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_ezcom_2eproto = {
-    false, false, 231, descriptor_table_protodef_ezcom_2eproto,
+    false, false, 263, descriptor_table_protodef_ezcom_2eproto,
     "ezcom.proto",
     &descriptor_table_ezcom_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_ezcom_2eproto::offsets,
@@ -104,6 +117,10 @@ namespace ezcom {
 
 class ProtobufMessage::_Internal {
  public:
+  using HasBits = decltype(std::declval<ProtobufMessage>()._has_bits_);
+  static void set_has_msg_id(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
 };
 
 ProtobufMessage::ProtobufMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -123,6 +140,7 @@ ProtobufMessage::ProtobufMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 }
 ProtobufMessage::ProtobufMessage(const ProtobufMessage& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _has_bits_(from._has_bits_),
       double_type_(from.double_type_),
       float_type_(from.float_type_),
       int32_type_(from.int32_type_),
@@ -133,10 +151,12 @@ ProtobufMessage::ProtobufMessage(const ProtobufMessage& from)
       string_type_(from.string_type_),
       bytes_type_(from.bytes_type_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  msg_id_ = from.msg_id_;
   // @@protoc_insertion_point(copy_constructor:ezcom.ProtobufMessage)
 }
 
 inline void ProtobufMessage::SharedCtor() {
+msg_id_ = int64_t{0};
 }
 
 ProtobufMessage::~ProtobufMessage() {
@@ -171,11 +191,14 @@ void ProtobufMessage::Clear() {
   bool_type_.Clear();
   string_type_.Clear();
   bytes_type_.Clear();
+  msg_id_ = int64_t{0};
+  _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* ProtobufMessage::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
@@ -286,6 +309,15 @@ const char* ProtobufMessage::_InternalParse(const char* ptr, ::_pbi::ParseContex
         } else
           goto handle_unusual;
         continue;
+      // optional int64 msg_id = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 80)) {
+          _Internal::set_has_msg_id(&has_bits);
+          msg_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -302,6 +334,7 @@ const char* ProtobufMessage::_InternalParse(const char* ptr, ::_pbi::ParseContex
     CHK_(ptr != nullptr);
   }  // while
 message_done:
+  _has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -380,6 +413,12 @@ uint8_t* ProtobufMessage::_InternalSerialize(
   for (int i = 0, n = this->_internal_bytes_type_size(); i < n; i++) {
     const auto& s = this->_internal_bytes_type(i);
     target = stream->WriteBytes(9, s, target);
+  }
+
+  // optional int64 msg_id = 10;
+  if (_internal_has_msg_id()) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt64ToArray(10, this->_internal_msg_id(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -503,6 +542,12 @@ size_t ProtobufMessage::ByteSizeLong() const {
       bytes_type_.Get(i));
   }
 
+  // optional int64 msg_id = 10;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_msg_id());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
@@ -534,6 +579,9 @@ void ProtobufMessage::MergeFrom(const ProtobufMessage& from) {
   bool_type_.MergeFrom(from.bool_type_);
   string_type_.MergeFrom(from.string_type_);
   bytes_type_.MergeFrom(from.bytes_type_);
+  if (from._internal_has_msg_id()) {
+    _internal_set_msg_id(from._internal_msg_id());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -551,6 +599,7 @@ bool ProtobufMessage::IsInitialized() const {
 void ProtobufMessage::InternalSwap(ProtobufMessage* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
   double_type_.InternalSwap(&other->double_type_);
   float_type_.InternalSwap(&other->float_type_);
   int32_type_.InternalSwap(&other->int32_type_);
@@ -560,6 +609,7 @@ void ProtobufMessage::InternalSwap(ProtobufMessage* other) {
   bool_type_.InternalSwap(&other->bool_type_);
   string_type_.InternalSwap(&other->string_type_);
   bytes_type_.InternalSwap(&other->bytes_type_);
+  swap(msg_id_, other->msg_id_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ProtobufMessage::GetMetadata() const {
