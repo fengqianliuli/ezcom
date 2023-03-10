@@ -1,28 +1,27 @@
 #pragma once
 
+#include <functional>
 #include <memory>
+
 #include "message.h"
 
 namespace ezcom {
 
-class RequestorImpl;
+class AsyncRequestorImpl;
 
 class Requestor final {
+  using Callback = std::function<void(const Message&)>;
+
  public:
-  Requestor(const std::string& address);
+  Requestor(std::string addr);
   ~Requestor();
-  Requestor(const Requestor&) = delete;
-  Requestor& operator=(const Requestor&) = delete;
-  Requestor(Requestor&&) = delete;
-  Requestor& operator=(Requestor&&) = delete;
 
-  bool ResetAddrAndReConnect(const std::string& addr);
-  Message SyncRequest(const Message& message);
-
+  int RequestForgot(const Message& message);
+  Message SyncRequest(const Message& message, int timeout_ms = -1);
+  int AsyncRequest(const Message& message, Callback callback);
 
  private:
-  std::shared_ptr<RequestorImpl> requestor_impl_{nullptr};
-
+  std::shared_ptr<AsyncRequestorImpl> async_requestor_;
 };
 
 }  // namespace ezcom

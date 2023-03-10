@@ -1,30 +1,28 @@
 #pragma once
 
-#include <string>
-#include <memory>
 #include <functional>
+#include <memory>
 
 #include "message.h"
 
 namespace ezcom {
 
-class ResponderImpl;
+class AsyncResponderImpl;
 
 class Responder final {
- public:
-  Responder(const std::string& address);
-  ~Responder();
-  Responder(const Responder&) = delete;
-  Responder& operator=(const Responder&) = delete;
-  Responder(Responder&&) = delete;
-  Responder& operator=(Responder&&) = delete;
+  using MsgCallback = std::function<Message(const Message&)>;
+  using MsgCallbackForgot = std::function<void(const Message&)>;
 
-  bool ResetAddrAndRebind(const std::string& addr);
-  void StartServer(std::function<Message(const Message&)> msg_callback);
+ public:
+  Responder(std::string addr);
+  ~Responder();
+
+  void StartServer(MsgCallback msg_callback);
+  void StartServerForgot(MsgCallbackForgot msg_callback);
   void StopServer();
 
  private:
-  std::shared_ptr<ResponderImpl> responder_impl_{nullptr};
+  std::shared_ptr<AsyncResponderImpl> async_responder_;
 };
 
-} // namespace ezcom
+}  // namespace ezcom

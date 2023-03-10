@@ -8,17 +8,21 @@
 
 void send() {
   ezcom::Requestor req("tcp://127.0.0.1:7788");
+
   ezcom::Message msg;
   msg.AddInt32(99);
   msg.AddString("this is test request msg");
-  ezcom::Message rep = req.SyncRequest(msg);
+  ezcom::Message rep = req.SyncRequest(msg, 3000);
   std::cout << "REQ ====== END" << std::endl;
   std::cout << "REQ ====== reply msg: " << rep.GetInt32(0) << std::endl;
   std::cout << "REQ ====== reply msg: " << rep.GetString(0) << std::endl;
+
+  std::this_thread::sleep_for(std::chrono::seconds(100));
 }
 
 void recv() {
   ezcom::Responder res("tcp://127.0.0.1:7788");
+
   res.StartServer([](const ezcom::Message& msg) {
     std::cout << "REP +++++++ recv msg: " << msg.GetInt32(0) << std::endl;
     std::cout << "REP +++++++ recv msg: " << msg.GetString(0) << std::endl;
@@ -27,11 +31,10 @@ void recv() {
     rep.AddString("this is test response reply");
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
-
     return rep;
   });
 
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  std::this_thread::sleep_for(std::chrono::seconds(100));
 }
 
 int main(int argc, char const* argv[]) {
