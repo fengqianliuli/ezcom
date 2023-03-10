@@ -15,6 +15,15 @@ void AsyncResponder::StartServer(
   async_responder_impl_->StartServer(msg_callback);
 }
 
+void AsyncResponder::StartServerForForgot(
+    std::function<void(const Message&)> msg_callback) {
+  std::function<Message(const Message&)> temp_func = [&](const Message& msg) {
+    msg_callback(msg);
+    return Message();
+  };
+  async_responder_impl_->StartServer(temp_func);
+}
+
 void AsyncResponder::StopServer() { async_responder_impl_->StopServer(); }
 
 }  // namespace ezcom

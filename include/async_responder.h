@@ -20,6 +20,7 @@ class AsyncResponder final {
   AsyncResponder& operator=(AsyncResponder&&) = delete;
 
   void StartServer(std::function<Message(const Message&)> msg_callback);
+  void StartServerForForgot(std::function<void(const Message&)> msg_callback);
   void StopServer();
 
  private:

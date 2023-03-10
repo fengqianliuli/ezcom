@@ -56,7 +56,9 @@ int AsyncRequestorImpl::AsyncRequest(Message& message,
                                        message.proto_msg_->ByteSizeLong());
   int rc = zmq_msg_send(&msg, pub_socket_, 0);
   zmq_msg_close(&msg);
-  callback_map_->insert({message.GetMsgId(), std::move(callback)});
+  if (callback != nullptr) {
+    callback_map_->insert({message.GetMsgId(), std::move(callback)});
+  }
   return rc;
 }
 

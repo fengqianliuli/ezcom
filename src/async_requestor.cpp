@@ -15,4 +15,8 @@ int AsyncRequestor::AsyncRequest(Message& message,
   return async_requestor_impl_->AsyncRequest(message, callback);
 }
 
+int AsyncRequestor::AsyncRequestForgot(Message& message) {
+  return async_requestor_impl_->AsyncRequest(message, nullptr);
+}
+
 }  // namespace ezcom

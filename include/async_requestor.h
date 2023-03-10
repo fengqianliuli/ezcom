@@ -20,6 +20,7 @@ class AsyncRequestor final {
 
   int AsyncRequest(Message& message,
                    std::function<void(const Message&)> callback);
+  int AsyncRequestForgot(Message& message);
 
  private:
   std::shared_ptr<AsyncRequestorImpl> async_requestor_impl_{nullptr};
