@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set("${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+execute_process(COMMAND protoc -I ${CMAKE_SOURCE_DIR}/proto/raw --cpp_out=${CMAKE_SOURCE_DIR}/proto/gen ${CMAKE_SOURCE_DIR}/proto/raw/ezcom.proto)
+
 file(GLOB_RECURSE EZCOM_SOURCES "src/*.cpp" "proto/*.cc")
 
 add_library(ezcom SHARED ${EZCOM_SOURCES})
