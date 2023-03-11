@@ -6,6 +6,30 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set("${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+option(CROSS_COMPILE "cross compile for aarch64" OFF)
+
+if (CROSS_COMPILE)
+  set(CMAKE_SYSTEM_NAME Linux)
+  set(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
+  set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
+  set(CMAKE_FIND_ROOT_PATH /usr/aarch64-linux-gnu)
+  set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+  set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+  set(THIRD_PARTY_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/third_party/protobuf/aarch64/include
+                               ${CMAKE_SOURCE_DIR}/third_party/zmq/aarch64/include)
+  set(THIRD_PARTY_LIB_PATH ${CMAKE_SOURCE_DIR}/third_party/protobuf/aarch64/lib
+                           ${CMAKE_SOURCE_DIR}/third_party/zmq/aarch64/lib)
+else()
+  set(CMAKE_C_COMPILER gcc)
+  set(CMAKE_CXX_COMPILER g++)
+  set(THIRD_PARTY_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/third_party/protobuf/x86_64/include
+                               ${CMAKE_SOURCE_DIR}/third_party/zmq/x86_64/include)
+  set(THIRD_PARTY_LIB_PATH ${CMAKE_SOURCE_DIR}/third_party/protobuf/x86_64/lib
+                           ${CMAKE_SOURCE_DIR}/third_party/zmq/x86_64/lib)
+endif()
+
 execute_process(COMMAND protoc -I ${CMAKE_SOURCE_DIR}/proto/raw --cpp_out=${CMAKE_SOURCE_DIR}/proto/gen ${CMAKE_SOURCE_DIR}/proto/raw/ezcom.proto)
 
 file(GLOB_RECURSE EZCOM_SOURCES "src/*.cpp" "proto/*.cc")
@@ -14,8 +38,8 @@ add_library(ezcom SHARED ${EZCOM_SOURCES})
 
 target_include_directories(ezcom PUBLIC ${CMAKE_SOURCE_DIR}
                                         ${CMAKE_SOURCE_DIR}/include
-                                        /usr/local/include)
-target_link_directories(ezcom PUBLIC /usr/local/lib)
+                                        ${THIRD_PARTY_INCLUDE_PATH})
+target_link_directories(ezcom PUBLIC ${THIRD_PARTY_LIB_PATH})
 target_link_libraries(ezcom PUBLIC libprotobuf.a zmq pthread)
 
 # build simple example
