@@ -3,52 +3,31 @@
 #include <chrono>
 #include <thread>
 
-#include "pub_sub/async_responder_impl.h"
+#include "req_rep/async_responder_impl.h"
 
 namespace ezcom {
 
-Responder::Responder(TransportType transport_type, std::string addr) {
+Responder::Responder(TransportType transport_type,
+                     const std::string& server_addr) {
+  std::string tmp_addr;
   switch (transport_type) {
     case TransportType::kTcp:
-      if (addr.find(':') == std::string::npos) {
+      if (server_addr.find(':') == std::string::npos) {
         throw std::invalid_argument("tcp address must be in format of ip:port");
       }
-      addr = "tcp://" + addr;
+      tmp_addr = "tcp://" + server_addr;
       break;
     case TransportType::kIpc:
-      if (addr.find(':') == std::string::npos) {
-        addr = "ipc:///tmp/" + addr + ":0";
+      if (server_addr.find(':') == std::string::npos) {
+        tmp_addr = "ipc:///tmp/" + server_addr + ":0";
       } else {
-        addr = "ipc:///tmp/" + addr;
+        tmp_addr = "ipc:///tmp/" + server_addr;
       }
       break;
     default:
       break;
   }
-  async_responder_ = std::make_shared<AsyncResponderImpl>(addr);
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-}
-
-Responder::Responder(TransportType transport_type, std::string local_addr,
-                     std::string remote_addr) {
-  switch (transport_type) {
-    case TransportType::kTcp:
-      if (local_addr.find(':') == std::string::npos ||
-          remote_addr.find(':') == std::string::npos) {
-        throw std::invalid_argument("tcp address must be in format of ip:port");
-      }
-      local_addr = "tcp://" + local_addr;
-      remote_addr = "tcp://" + remote_addr;
-      break;
-    case TransportType::kIpc:
-      local_addr = "ipc:///tmp/" + local_addr;
-      remote_addr = "ipc:///tmp/" + remote_addr;
-      break;
-    default:
-      break;
-  }
-  async_responder_ =
-      std::make_shared<AsyncResponderImpl>(local_addr, remote_addr);
+  async_responder_ = std::make_shared<AsyncResponderImpl>(tmp_addr);
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 

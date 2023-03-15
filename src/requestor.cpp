@@ -1,90 +1,71 @@
 #include "requestor.h"
 
 #include <chrono>
-#include <condition_variable>
-#include <mutex>
 #include <thread>
 
-#include "pub_sub/async_requestor_impl.h"
+#include "req_rep/async_requestor_impl.h"
 
 namespace ezcom {
 
-Requestor::Requestor(TransportType transport_type, std::string addr) {
+Requestor::Requestor(TransportType transport_type, const std::string& server_addr) {
+  std::string tmp_addr;
   switch (transport_type) {
     case TransportType::kTcp:
-      if (addr.find(':') == std::string::npos) {
+      if (server_addr.find(':') == std::string::npos) {
         throw std::invalid_argument("tcp address must be in format of ip:port");
       }
-      addr = "tcp://" + addr;
+      tmp_addr = "tcp://" + server_addr;
       break;
     case TransportType::kIpc:
-      if (addr.find(':') == std::string::npos) {
-        addr = "ipc:///tmp/" + addr + ":0";
+      if (server_addr.find(':') == std::string::npos) {
+        tmp_addr = "ipc:///tmp/" + server_addr + ":0";
       } else {
-        addr = "ipc:///tmp/" + addr;
+        tmp_addr = "ipc:///tmp/" + server_addr;
       }
       break;
     default:
       break;
   }
-  async_requestor_ = std::make_shared<AsyncRequestorImpl>(addr);
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-}
-
-Requestor::Requestor(TransportType transport_type, std::string local_addr,
-                     std::string remote_addr) {
-  switch (transport_type) {
-    case TransportType::kTcp:
-      if (local_addr.find(':') == std::string::npos || remote_addr.find(':') == std::string::npos) {
-        throw std::invalid_argument("tcp address must be in format of ip:port");
-      }
-      local_addr = "tcp://" + local_addr;
-      remote_addr = "tcp://" + remote_addr;
-      break;
-    case TransportType::kIpc:
-      local_addr = "ipc:///tmp/" + local_addr;
-      remote_addr = "ipc:///tmp/" + remote_addr;
-      break;
-    default:
-      break;
-  }
-  async_requestor_ =
-      std::make_shared<AsyncRequestorImpl>(local_addr, remote_addr);
+  async_requestor_ = std::make_shared<AsyncRequestorImpl>(tmp_addr);
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 Requestor::~Requestor() { async_requestor_ = nullptr; }
 
-int Requestor::RequestForgot(const Message& message) {
+void Requestor::RequestForgot(const Message& message) {
   return async_requestor_->AsyncRequest(const_cast<Message&>(message), nullptr);
 }
 
-Message Requestor::SyncRequest(const Message& message, int timeout_ms) {
-  Message response;
-  std::mutex mutex;
-  std::condition_variable cv;
-  bool done = false;
-  auto callback = [&response, &mutex, &cv, &done](const Message& msg) {
-    response = msg;
-    {
-      std::lock_guard<std::mutex> lock(mutex);
-      done = true;
-    }
-    cv.notify_one();
-  };
-  int rc =
-      async_requestor_->AsyncRequest(const_cast<Message&>(message), callback);
-  std::unique_lock<std::mutex> lock(mutex);
-  if (timeout_ms < 0) {
-    cv.wait(lock, [&done] { return done; });
-  } else {
-    cv.wait_for(lock, std::chrono::milliseconds(timeout_ms),
-                [&done] { return done; });
+Message Requestor::SyncRequest(Message& message, int timeout_ms) {
+  if (msg_id_ == std::numeric_limits<int64_t>::max()) {
+    msg_id_ = 0;
   }
-  return response;
+  message.SetMsgId(++msg_id_);
+  auto callback = [this](const Message& msg) {
+    if (msg_id_set_.find(msg.GetMsgId()) == msg_id_set_.end()) {
+      return;
+    }
+    response_ = msg;
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      done_ = true;
+    }
+    cv_.notify_one();
+  };
+  msg_id_set_.emplace(message.GetMsgId());
+  async_requestor_->AsyncRequest(message, callback);
+
+  std::unique_lock<std::mutex> lock(mutex_);
+  if (timeout_ms < 0) {
+    cv_.wait(lock, [this] { return done_; });
+  } else {
+    cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms),
+                [this] { return done_; });
+  }
+  return response_;
 }
 
-int Requestor::AsyncRequest(const Message& message, Callback callback) {
+void Requestor::AsyncRequest(const Message& message, Callback callback) {
   return async_requestor_->AsyncRequest(const_cast<Message&>(message),
                                         callback);
 }

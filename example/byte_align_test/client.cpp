@@ -7,13 +7,12 @@
 #include "requestor.h"
 
 int main(int argc, char const* argv[]) {
-  if (argc < 3) {
-    std::cout << "param must has local addr and remote addr !" << std::endl;
+  if (argc < 2) {
+    std::cout << "param must has server addr !" << std::endl;
     return -1;
   }
-  std::string local_addr = argv[1];
-  std::string remote_addr = argv[2];
-  ezcom::Requestor req(ezcom::TransportType::kTcp, local_addr, remote_addr);
+  std::string server_addr = argv[1];
+  ezcom::Requestor req(ezcom::TransportType::kTcp, server_addr);
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
   ezcom::Message msg;

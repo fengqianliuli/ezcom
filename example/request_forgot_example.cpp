@@ -10,7 +10,7 @@ constexpr int kDataSize = 1024 * 1024 * 20;
 
 void send() {
   ezcom::Requestor req(ezcom::TransportType::kTcp, "127.0.0.1:7788");
-  // 在rep启动之前发送消息，消息将会丢失，但rep不会崩溃
+  // 在rep启动之前发送消息，消息将会保存在队列中，等rep启动后，将会发送给rep
   uint8_t* bytes = new uint8_t[kDataSize];
 
   for (int i = 0; i < 10; ++i) {
@@ -19,10 +19,9 @@ void send() {
     // msg.AddString("this is test request msg");
     msg.AddBytes(bytes, kDataSize);
     auto start = std::chrono::system_clock::now();
-    int size = req.RequestForgot(msg);
+    req.RequestForgot(msg);
     auto end = std::chrono::system_clock::now();
     std::cout << "time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us" << std::endl;
-    std::cout << "REQ ====== END, msg len: " << size << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
@@ -33,7 +32,7 @@ void send() {
 }
 
 void recv() {
-  // 故意晚启动rep，让req先发送消息，req之前发送的消息将会丢失
+  // 故意晚启动rep
   std::this_thread::sleep_for(std::chrono::seconds(3));
 
   ezcom::Responder res(ezcom::TransportType::kTcp, "127.0.0.1:7788");

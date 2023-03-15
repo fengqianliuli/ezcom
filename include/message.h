@@ -62,9 +62,8 @@ class Message final {
   std::string GetString(int index) const;
   std::string GetBytes(int index) const;
 
- private:
-  void SetMsgId(const int64_t& msg_id);
   int64_t GetMsgId() const;
+  void SetMsgId(const int64_t& msg_id);
 
  private:
   std::shared_ptr<ProtobufMessage> proto_msg_;
