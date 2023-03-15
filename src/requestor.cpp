@@ -62,6 +62,7 @@ Message Requestor::SyncRequest(Message& message, int timeout_ms) {
     cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms),
                 [this] { return done_; });
   }
+  msg_id_set_.erase(message.GetMsgId());
   return response_;
 }
 
