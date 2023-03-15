@@ -10,8 +10,8 @@ option(CROSS_COMPILE "cross compile for aarch64" OFF)
 
 if (CROSS_COMPILE)
   set(CMAKE_SYSTEM_NAME Linux)
-  set(CMAKE_C_COMPILER /usr/bin/aarch64-linux-gnu-gcc)
-  set(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++)
+  set(CMAKE_C_COMPILER ${CMAKE_SOURCE_DIR}/toolchains/aarch64--glibc--stable-2022.03-1/bin/aarch64-linux-gcc)
+  set(CMAKE_CXX_COMPILER ${CMAKE_SOURCE_DIR}/toolchains/aarch64--glibc--stable-2022.03-1/bin/aarch64-linux-g++)
 
   set(THIRD_PARTY_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/third_party/protobuf/aarch64/include
                                ${CMAKE_SOURCE_DIR}/third_party/zmq/aarch64/include)
@@ -42,9 +42,13 @@ target_link_libraries(ezcom PUBLIC libprotobuf.a zmq pthread)
 add_executable(sync_example example/sync_example.cpp)
 add_executable(async_example example/async_example.cpp)
 add_executable(request_forgot_example example/request_forgot_example.cpp)
+add_executable(client example/byte_align_test/client.cpp)
+add_executable(server example/byte_align_test/server.cpp)
 target_link_libraries(sync_example ezcom)
 target_link_libraries(async_example ezcom)
 target_link_libraries(request_forgot_example ezcom)
+target_link_libraries(client ezcom)
+target_link_libraries(server ezcom)
 
 # install ezcom library and simple binary
 set(CMAKE_INSTALL_PREFIX install)

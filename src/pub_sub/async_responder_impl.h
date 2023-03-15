@@ -14,12 +14,14 @@ class AsyncResponderImpl {
 
  public:
   AsyncResponderImpl(const std::string& addr);
+  AsyncResponderImpl(const std::string& local_addr, const std::string& remote_addr);
   ~AsyncResponderImpl();
 
   void StartServer(MsgCallback msg_callback);
   void StopServer();
 
  private:
+  void Init();
   void ServerLoop(MsgCallback msg_callback);
 
  private:

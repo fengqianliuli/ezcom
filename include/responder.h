@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "message.h"
+#include "common.h"
 
 namespace ezcom {
 
@@ -14,7 +15,9 @@ class Responder final {
   using MsgCallbackForgot = std::function<void(const Message&)>;
 
  public:
-  Responder(std::string addr);
+  Responder(TransportType transport_type, std::string addr);
+  Responder(TransportType transport_type, std::string local_addr,
+            std::string remote_addr);
   ~Responder();
 
   void StartServer(MsgCallback msg_callback);

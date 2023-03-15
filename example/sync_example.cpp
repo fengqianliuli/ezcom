@@ -9,6 +9,7 @@
 #pragma pack(1)
 struct Test_t {
   int int_value;
+  double double_value;
   char char_value[10];
   std::string str_value;
 };
@@ -16,13 +17,11 @@ struct Test_t {
 #pragma pack ()
 
 void send() {
-  ezcom::Requestor req("tcp://127.0.0.1:7788");
-  // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  ezcom::Requestor req(ezcom::TransportType::kTcp, "127.0.0.1:7788");
 
   ezcom::Message msg;
-  // msg.AddInt32(99);
-  // msg.AddString("this is test request msg");
-  Test_t test_t{99, "aaaaaaaa", "bbbbbbbbbb"};
+  Test_t test_t{99, 99.99, "aaaaaaaa", "bbbbbbbbbb"};
+  std::cout << "test_t size = " << sizeof(test_t) << std::endl;
   msg.AddBytes(&test_t, sizeof(test_t));
 
   auto start = std::chrono::system_clock::now();
@@ -35,20 +34,18 @@ void send() {
 }
 
 void recv() {
-  ezcom::Responder res("tcp://127.0.0.1:7788");
+  ezcom::Responder res(ezcom::TransportType::kTcp, "127.0.0.1:7788");
 
   res.StartServer([](const ezcom::Message& msg) {
     std::string test_t_str = msg.GetBytes(0);
     Test_t* test_t = reinterpret_cast<Test_t*>(const_cast<char *>(test_t_str.data()));
 
-    std::cout << "recv msg: " << test_t->int_value << " " << test_t->char_value << " " << test_t->str_value << std::endl;
-
+    std::cout << "recv msg: " << test_t->int_value << std::endl;
+    std::cout << "recv msg: " << test_t->double_value << std::endl;
+    std::cout << "recv msg: " << test_t->char_value << std::endl;
+    std::cout << "recv msg: " << test_t->str_value << std::endl;
 
     ezcom::Message rep;
-    rep.AddInt32(100);
-    rep.AddString("this is test response reply");
-
-    // std::this_thread::sleep_for(std::chrono::seconds(1));
     return rep;
   });
 

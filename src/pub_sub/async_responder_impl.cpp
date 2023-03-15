@@ -14,6 +14,28 @@ AsyncResponderImpl::AsyncResponderImpl(const std::string& addr)
       sub_addr_.substr(0, sub_addr_.find_last_of(":") + 1) +
       std::to_string(
           std::stoi(sub_addr_.substr(sub_addr_.find_last_of(":") + 1)) + 1);
+  Init();
+}
+
+AsyncResponderImpl::AsyncResponderImpl(const std::string& local_addr,
+                                       const std::string& remote_addr)
+    : pub_addr_(local_addr), sub_addr_(remote_addr) {
+  Init();
+}
+
+AsyncResponderImpl::~AsyncResponderImpl() {
+  zmq_close(pub_socket_);
+  zmq_close(sub_socket_);
+  zmq_ctx_term(ctx_);
+  this->StopServer();
+  if (server_thread_->joinable()) {
+    server_thread_->join();
+  }
+}
+
+void AsyncResponderImpl::Init() {
+  std::cout << "Responder: local addr = " << pub_addr_ << std::endl;
+  std::cout << "Responder: remote addr = " << sub_addr_ << std::endl;
   ctx_ = zmq_ctx_new();
   pub_socket_ = zmq_socket(ctx_, ZMQ_PUB);
   sub_socket_ = zmq_socket(ctx_, ZMQ_SUB);
@@ -26,16 +48,6 @@ AsyncResponderImpl::AsyncResponderImpl(const std::string& addr)
   }
   if (zmq_setsockopt(sub_socket_, ZMQ_SUBSCRIBE, "", 0) != 0) {
     throw std::runtime_error("AsyncResponder: zmq_setsockopt failed");
-  }
-}
-
-AsyncResponderImpl::~AsyncResponderImpl() {
-  zmq_close(pub_socket_);
-  zmq_close(sub_socket_);
-  zmq_ctx_term(ctx_);
-  this->StopServer();
-  if (server_thread_->joinable()) {
-    server_thread_->join();
   }
 }
 

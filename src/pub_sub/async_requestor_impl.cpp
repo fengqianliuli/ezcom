@@ -15,6 +15,28 @@ AsyncRequestorImpl::AsyncRequestorImpl(const std::string& addr)
       pub_addr_.substr(0, pub_addr_.find_last_of(":") + 1) +
       std::to_string(
           std::stoi(pub_addr_.substr(pub_addr_.find_last_of(":") + 1)) + 1);
+  Init();
+}
+
+AsyncRequestorImpl::AsyncRequestorImpl(const std::string& local_addr,
+                                       const std::string& remote_addr)
+    : pub_addr_(local_addr), sub_addr_(remote_addr) {
+  Init();
+}
+
+AsyncRequestorImpl::~AsyncRequestorImpl() {
+  zmq_close(pub_socket_);
+  zmq_close(sub_socket_);
+  zmq_ctx_term(ctx_);
+  started_.store(false);
+  if (receive_thread_->joinable()) {
+    receive_thread_->join();
+  }
+}
+
+void AsyncRequestorImpl::Init() {
+  std::cout << "Requestor: local addr = " << pub_addr_ << std::endl;
+  std::cout << "Requestor: remote addr = " << sub_addr_ << std::endl;
   ctx_ = zmq_ctx_new();
   pub_socket_ = zmq_socket(ctx_, ZMQ_PUB);
   sub_socket_ = zmq_socket(ctx_, ZMQ_SUB);
@@ -32,16 +54,6 @@ AsyncRequestorImpl::AsyncRequestorImpl(const std::string& addr)
   started_.store(true);
   receive_thread_ =
       std::make_shared<std::thread>(&AsyncRequestorImpl::ReceiveLoop, this);
-}
-
-AsyncRequestorImpl::~AsyncRequestorImpl() {
-  zmq_close(pub_socket_);
-  zmq_close(sub_socket_);
-  zmq_ctx_term(ctx_);
-  started_.store(false);
-  if (receive_thread_->joinable()) {
-    receive_thread_->join();
-  }
 }
 
 int AsyncRequestorImpl::AsyncRequest(Message& message,

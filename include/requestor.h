@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "message.h"
+#include "common.h"
 
 namespace ezcom {
 
@@ -13,7 +14,9 @@ class Requestor final {
   using Callback = std::function<void(const Message&)>;
 
  public:
-  Requestor(std::string addr);
+  Requestor(TransportType transport_type, std::string addr);
+  Requestor(TransportType transport_type, std::string local_addr,
+            std::string remote_addr);
   ~Requestor();
 
   int RequestForgot(const Message& message);

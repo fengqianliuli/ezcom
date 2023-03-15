@@ -15,11 +15,13 @@ class AsyncRequestorImpl {
 
  public:
   AsyncRequestorImpl(const std::string& addr);
+  AsyncRequestorImpl(const std::string& local_addr, const std::string& remote_addr);
   ~AsyncRequestorImpl();
 
   int AsyncRequest(Message& message, Callback callback);
 
  private:
+  void Init();
   void ReceiveLoop();
 
  private:

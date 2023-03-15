@@ -9,7 +9,7 @@
 constexpr int kDataSize = 1024 * 1024 * 20;
 
 void send() {
-  ezcom::Requestor req("tcp://127.0.0.1:7788");
+  ezcom::Requestor req(ezcom::TransportType::kTcp, "127.0.0.1:7788");
   // 在rep启动之前发送消息，消息将会丢失，但rep不会崩溃
   uint8_t* bytes = new uint8_t[kDataSize];
 
@@ -36,7 +36,7 @@ void recv() {
   // 故意晚启动rep，让req先发送消息，req之前发送的消息将会丢失
   std::this_thread::sleep_for(std::chrono::seconds(3));
 
-  ezcom::Responder res("tcp://127.0.0.1:7788");
+  ezcom::Responder res(ezcom::TransportType::kTcp, "127.0.0.1:7788");
   res.StartServerForgot([](const ezcom::Message& msg) {
     std::cout << "REP +++++++ recv msg size: " << msg.GetBytes(0).size() << std::endl;
     // std::cout << "REP +++++++ recv msg: " << msg.GetInt32(0) << std::endl;
