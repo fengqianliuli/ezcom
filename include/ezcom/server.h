@@ -1,11 +1,13 @@
 #pragma once
 
+#include "node.h"
+
 namespace ezcom {
 
-class Server {
+class Server : public Node {
  public:
-  Server();
-  virtual ~Server();
+  Server() = default;
+  virtual ~Server() = default;
 };
 
 }  // namespace ezcom

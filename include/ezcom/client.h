@@ -1,11 +1,19 @@
 #pragma once
+#include <functional>
+#include <string>
+
+#include "node.h"
 
 namespace ezcom {
 
-class Client {
+using ConnectionCallback = std::function<void(ConnectionEvent)>;
+
+class Client : public Node {
  public:
-  Client();
-  virtual ~Client();
+  Client() = default;
+  virtual ~Client() = default;
+  virtual void Connect(const std::string& addr,
+                       ConnectionCallback cb = nullptr) = 0;
 };
 
 }  // namespace ezcom
