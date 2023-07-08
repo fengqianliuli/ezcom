@@ -9,8 +9,6 @@ class ReqRepClientImpl : public Client {
   ReqRepClientImpl();
   ~ReqRepClientImpl();
 
-  void Connect() override;
-
  private:
   
 };

@@ -8,9 +8,9 @@ enum class CommMode {
 };
 
 enum class TransportType {
-  kInproc = 0,
-  kIPC = 1,
-  kTCP = 2,
+  kZmqInproc = 0,
+  kZmqIpc = 1,
+  kZmqTcp = 2,
 };
 
 }  // namespace ezcom
