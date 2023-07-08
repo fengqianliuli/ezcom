@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package holosar.ezcom;
+
+message ProtobufMessage {
+  repeated double double_type = 1;
+  repeated float float_type = 2;
+  repeated int32 int32_type = 3;
+  repeated int64 int64_type = 4;
+  repeated uint32 uint32_type = 5;
+  repeated uint64 uint64_type = 6;
+  repeated bool bool_type = 7;
+  repeated string string_type = 8;
+  repeated bytes bytes_type = 9;
+  int64 msg_id = 10;
+}
+
