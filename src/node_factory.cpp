@@ -1,5 +1,6 @@
 #include "ezcom/node_factory.h"
 
+#include "ezcom/exception.h"
 #include "impl/reqrep_client_impl.h"
 #include "impl/reqrep_server_impl.h"
 
@@ -37,7 +38,7 @@ std::unique_ptr<Node> NodeFactory::CreateNode(
     const NodeType& node_type, const CommMode& comm_mode,
     const TransportType& transport_type) {
   if (transport_type == TransportType::kZmqInproc) {
-    throw std::runtime_error("Not support transport type");
+    throw InvalidParamException("Not support transport type[kZmqInproc]");
   }
   switch (comm_mode) {
     case CommMode::kReqRep: {
@@ -48,9 +49,9 @@ std::unique_ptr<Node> NodeFactory::CreateNode(
       }
     } break;
     case CommMode::kPubSub:
-      throw std::runtime_error("Not support communication mode");
+      throw InvalidParamException("Not support communication mode[kPubSub]");
     default:
-      throw std::runtime_error("Invalid communication mode");
+      throw InvalidParamException("Unknown communication mode");
   }
 }
 

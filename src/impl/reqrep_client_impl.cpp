@@ -1,5 +1,6 @@
 #include "reqrep_client_impl.h"
 
+#include "ezcom/exception.h"
 #include "zmq.h"
 
 namespace ezcom {
@@ -10,7 +11,7 @@ ReqRepClientImpl::ReqRepClientImpl(const void* context,
   comm_mode_ = CommMode::kReqRep;
   transport_type_ = transport_type;
   if (context == nullptr) {
-    throw std::runtime_error("zmq context is nullptr");
+    throw InvalidParamException("Zmq context is nullptr");
   }
   socket_ = zmq_socket(context_, ZMQ_REQ);
 }
@@ -35,15 +36,15 @@ void ReqRepClientImpl::Connect(const std::string& addr, ConnectionCallback cb) {
     case TransportType::kZmqTcp: {
       // 判断addr是否是ip地址
       if (addr.find(':') == std::string::npos) {
-        throw std::runtime_error("Invalid ip address");
+        throw InvalidParamException("Invalid ip address: " + addr);
       }
       rc = zmq_connect(socket_, ("tcp://" + addr).c_str());
     } break;
     default:
-      throw std::runtime_error("Invalid transport type");
+      throw InvalidParamException("Unknown transport type");
   }
   if (rc != 0) {
-    throw std::runtime_error("zmq connect failed");
+    throw ResourceInitException("Zmq connect failed");
   }
 }
 
