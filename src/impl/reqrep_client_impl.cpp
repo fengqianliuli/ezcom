@@ -5,6 +5,7 @@
 #include "zmq.h"
 
 namespace ezcom {
+namespace impl {
 
 ReqRepClientImpl::ReqRepClientImpl(void* context,
                                    const TransportType& transport_type) {
@@ -41,6 +42,7 @@ void ReqRepClientImpl::Connect(const std::string& addr, ConnectionCallback cb) {
   int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
+      rc = zmq_connect(socket_, ("inproc://" + addr).c_str());
     } break;
     case TransportType::kZmqIpc: {
       rc = zmq_connect(socket_, ("ipc:///tmp/" + addr).c_str());
@@ -73,4 +75,5 @@ void ReqRepClientImpl::Connect(const std::string& addr, ConnectionCallback cb) {
   }
 }
 
+}  // namespace impl
 }  // namespace ezcom

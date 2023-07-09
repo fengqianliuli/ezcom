@@ -6,6 +6,7 @@
 #include "ezcom/client.h"
 
 namespace ezcom {
+namespace impl {
 
 class ReqRepClientImpl : public Client {
  public:
@@ -26,4 +27,5 @@ class ReqRepClientImpl : public Client {
   std::atomic_bool monitor_running_{false};
 };
 
+}  // namespace impl
 }  // namespace ezcom

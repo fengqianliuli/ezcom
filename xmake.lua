@@ -13,7 +13,7 @@ target("ezcom")
 target("ezcom_test")
     set_kind("binary")
     add_deps("ezcom")
-    add_files("example/test.cpp")
+    add_files("test/test.cpp")
     add_includedirs("$(projectdir)/include")
     add_links("ezcom", "pthread")
 
