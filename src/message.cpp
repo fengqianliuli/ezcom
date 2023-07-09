@@ -15,6 +15,10 @@ int64_t Message::GetMsgId() const {
   return proto_msg_->msg_id();
 }
 
+std::shared_ptr<ProtobufMessage> Message::GetProtobufMessage() const {
+  return proto_msg_;
+}
+
 /********************ADD************************/
 
 void Message::AddInt32(const int32_t& value) {

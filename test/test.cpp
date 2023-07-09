@@ -18,7 +18,9 @@ void client_func() {
 
 void server_func() {
   auto server_up = NodeFactory::CreateServer(TransportType::kZmqTcp);
-  server_up->Bind("127.0.0.1:8899");
+  server_up->Bind("127.0.0.1:8899",
+                  [](const std::shared_ptr<Message> &msg)
+                      -> const std::shared_ptr<Message> & { return msg; });
 
   std::cout << "CreateServer already return ..." << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(4));

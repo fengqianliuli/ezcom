@@ -38,7 +38,8 @@ ReqRepClientImpl::~ReqRepClientImpl() {
   }
 }
 
-void ReqRepClientImpl::Connect(const std::string& addr, ConnectionCallback cb) {
+void ReqRepClientImpl::Connect(const std::string& addr,
+                               const ConnectionCallback& conn_cb) {
   int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
@@ -60,14 +61,14 @@ void ReqRepClientImpl::Connect(const std::string& addr, ConnectionCallback cb) {
   if (rc != 0) {
     throw ResourceException("Zmq connect failed");
   }
-  if (cb) {
+  if (conn_cb) {
     monitor_running_ = true;
-    monitor_future_ = std::async(std::launch::async, [this, cb]() {
+    monitor_future_ = std::async(std::launch::async, [this, conn_cb]() {
       while (monitor_running_) {
         int event = utils::ZmqUtils::GetMonitorEvent(monitor_socket_);
         // 第一次connect后退出
         if (event == ZMQ_EVENT_CONNECTED) {
-          cb(ConnectionEvent::kConnected);
+          conn_cb(ConnectionEvent::kConnected);
           break;
         }
       }

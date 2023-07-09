@@ -1,6 +1,7 @@
 #include "reqrep_server_impl.h"
 
 #include "ezcom/exception.h"
+#include "proto/gen/ezcom.pb.h"
 #include "zmq.h"
 
 namespace ezcom {
@@ -23,6 +24,14 @@ ReqRepServerImpl::ReqRepServerImpl(const TransportType& transport_type)
     : ReqRepServerImpl(zmq_ctx_new(), transport_type) {}
 
 ReqRepServerImpl::~ReqRepServerImpl() {
+  // stop message handle thread
+  msg_handle_running_ = false;
+  auto thread_handle = msg_handle_thread_->native_handle();
+  if (msg_handle_thread_ != nullptr) {
+    msg_handle_thread_->detach();
+    pthread_cancel(thread_handle);
+  }
+
   // destory zmq resources
   zmq_close(socket_);
   if (transport_type_ != TransportType::kZmqInproc) {
@@ -30,7 +39,18 @@ ReqRepServerImpl::~ReqRepServerImpl() {
   }
 }
 
-void ReqRepServerImpl::Bind(const std::string& addr) {
+void ReqRepServerImpl::Bind(const std::string& addr,
+                            const MessageHandler& handler) {
+  if (addr.empty()) {
+    throw InvalidParamException("Invalid addr");
+  }
+  if (handler == nullptr) {
+    throw InvalidParamException("Invalid handler function");
+  }
+  if (msg_handle_running_) {
+    throw ResourceException("Message handle thread already is running");
+  }
+  // bind socket
   int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
@@ -51,6 +71,38 @@ void ReqRepServerImpl::Bind(const std::string& addr) {
   }
   if (rc != 0) {
     throw ResourceException("Zmq bind failed");
+  }
+
+  // start message handle thread
+  msg_handle_running_ = true;
+  msg_handle_thread_ = std::make_shared<std::thread>(
+      std::bind(&ReqRepServerImpl::MsgHandle, this, handler));
+}
+
+void ReqRepServerImpl::MsgHandle(const MessageHandler& handler) {
+  while (msg_handle_running_) {
+    zmq_msg_t msg;
+    zmq_msg_init(&msg);
+    int rc = zmq_msg_recv(&msg, socket_, 0);
+    if (rc == -1) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
+    auto message = std::make_shared<Message>();
+    message->GetProtobufMessage()->ParseFromArray(zmq_msg_data(&msg),
+                                                  zmq_msg_size(&msg));
+    zmq_msg_close(&msg);
+
+    auto response = handler(message);
+    response->SetMsgId(message->GetMsgId());
+    zmq_msg_t resp_msg;
+    zmq_msg_init_size(&resp_msg,
+                      response->GetProtobufMessage()->ByteSizeLong());
+    response->GetProtobufMessage()->SerializeToArray(
+        zmq_msg_data(&resp_msg),
+        response->GetProtobufMessage()->ByteSizeLong());
+    zmq_msg_send(&resp_msg, socket_, 0);
+    zmq_msg_close(&resp_msg);
   }
 }
 

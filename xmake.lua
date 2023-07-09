@@ -4,6 +4,9 @@ set_defaultmode("release")
 set_warnings("all", "error")
 set_languages("c99", "c++14")
 
+add_includedirs("/usr/local/include")
+add_linkdirs("/usr/local/lib")
+
 target("ezcom")
     set_kind("shared")
     add_files("src/**.cpp", "proto/gen/**.cc")
@@ -19,5 +22,5 @@ target("ezcom_test")
     add_deps("ezcom")
     add_files("test/test.cpp")
     add_includedirs("$(projectdir)/include")
-    add_links("ezcom", "pthread")
+    add_links("ezcom", "protobuf", "pthread")
 

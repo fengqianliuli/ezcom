@@ -16,7 +16,7 @@ class ReqRepClientImpl : public Client {
   ReqRepClientImpl& operator=(const ReqRepClientImpl&) = delete;
   ~ReqRepClientImpl();
   void Connect(const std::string& addr,
-               ConnectionCallback cb = nullptr) override;
+               const ConnectionCallback& conn_cb = nullptr) override;
 
   //  private:
  private:

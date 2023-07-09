@@ -11,13 +11,14 @@ class Message final {
  public:
   Message();
   ~Message() = default;
-  Message(const Message&) = default;
-  Message& operator=(const Message&) = default;
-  Message(Message&&) = default;
-  Message& operator=(Message&&) = default;
+  Message(const Message&) = delete;
+  Message& operator=(const Message&) = delete;
+  Message(Message&&) = delete;
+  Message& operator=(Message&&) = delete;
 
   int64_t GetMsgId() const;
   void SetMsgId(const int64_t& msg_id);
+  std::shared_ptr<ProtobufMessage> GetProtobufMessage() const;
 
   void AddInt32(const int32_t& value);
   void AddInt64(const int64_t& value);

@@ -13,7 +13,7 @@ class Client : public Node {
   Client() = default;
   virtual ~Client() = default;
   virtual void Connect(const std::string& addr,
-                       ConnectionCallback cb = nullptr) = 0;
+                       const ConnectionCallback& conn_cb = nullptr) = 0;
 };
 
 }  // namespace ezcom
