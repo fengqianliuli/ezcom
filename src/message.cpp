@@ -17,14 +17,6 @@ int64_t Message::GetMsgId() const {
 
 /********************ADD************************/
 
-void Message::AddDouble(const double& value) {
-  proto_msg_->add_double_type(value);
-}
-
-void Message::AddFloat(const float& value) {
-  proto_msg_->add_float_type(value);
-}
-
 void Message::AddInt32(const int32_t& value) {
   proto_msg_->add_int32_type(value);
 }
@@ -41,6 +33,14 @@ void Message::AddUint64(const uint64_t& value) {
   proto_msg_->add_uint64_type(value);
 }
 
+void Message::AddFloat(const float& value) {
+  proto_msg_->add_float_type(value);
+}
+
+void Message::AddDouble(const double& value) {
+  proto_msg_->add_double_type(value);
+}
+
 void Message::AddBool(const bool& value) {
   proto_msg_->add_bool_type(value);
 }
@@ -54,14 +54,6 @@ void Message::AddBytes(const void* value, size_t size) {
 }
 
 /********************CLEAN************************/
-
-void Message::CleanDouble() {
-  proto_msg_->clear_double_type();
-}
-
-void Message::CleanFloat() {
-  proto_msg_->clear_float_type();
-}
 
 void Message::CleanInt32() {
   proto_msg_->clear_int32_type();
@@ -77,6 +69,14 @@ void Message::CleanUint32() {
 
 void Message::CleanUint64() {
   proto_msg_->clear_uint64_type();
+}
+
+void Message::CleanFloat() {
+  proto_msg_->clear_float_type();
+}
+
+void Message::CleanDouble() {
+  proto_msg_->clear_double_type();
 }
 
 void Message::CleanBool() {
@@ -105,14 +105,6 @@ void Message::CleanAll() {
 
 /********************GET SIZE************************/
 
-int Message::GetDoubleSize() const {
-  return proto_msg_->double_type_size();
-}
-
-int Message::GetFloatSize() const {
-  return proto_msg_->float_type_size();
-}
-
 int Message::GetInt32Size() const {
   return proto_msg_->int32_type_size();
 }
@@ -127,6 +119,14 @@ int Message::GetUint32Size() const {
 
 int Message::GetUint64Size() const {
   return proto_msg_->uint64_type_size();
+}
+
+int Message::GetFloatSize() const {
+  return proto_msg_->float_type_size();
+}
+
+int Message::GetDoubleSize() const {
+  return proto_msg_->double_type_size();
 }
 
 int Message::GetBoolSize() const {
@@ -144,14 +144,6 @@ int Message::GetBytesSize() const {
 
 /********************GET VALUE************************/
 
-double Message::GetDouble(int index) const {
-  return proto_msg_->double_type(index);
-}
-
-float Message::GetFloat(int index) const {
-  return proto_msg_->float_type(index);
-}
-
 int32_t Message::GetInt32(int index) const {
   return proto_msg_->int32_type(index);
 }
@@ -166,6 +158,14 @@ uint32_t Message::GetUint32(int index) const {
 
 uint64_t Message::GetUint64(int index) const {
   return proto_msg_->uint64_type(index);
+}
+
+float Message::GetFloat(int index) const {
+  return proto_msg_->float_type(index);
+}
+
+double Message::GetDouble(int index) const {
+  return proto_msg_->double_type(index);
 }
 
 bool Message::GetBool(int index) const {
