@@ -14,9 +14,9 @@ class InvalidParamException : public Exception {
   InvalidParamException(const std::string& msg) : Exception(msg) {}
 };
 
-class ResourceInitException : public Exception {
+class ResourceException : public Exception {
  public:
-  ResourceInitException(const std::string& msg) : Exception(msg) {}
+  ResourceException(const std::string& msg) : Exception(msg) {}
 };
 
 }  // namespace ezcom

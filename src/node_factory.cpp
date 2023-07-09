@@ -44,15 +44,17 @@ std::unique_ptr<Node> NodeFactory::CreateNode(
     case CommMode::kReqRep: {
       if (node_type == NodeType::kClient) {
         return std::make_unique<ReqRepClientImpl>(transport_type);
-      } else if (node_type == NodeType::kServer) {
-        return std::make_unique<ReqRepServerImpl>(transport_type);
       }
+      // } else if (node_type == NodeType::kServer) {
+      //   return std::make_unique<ReqRepServerImpl>(transport_type);
+      // }
     } break;
     case CommMode::kPubSub:
       throw InvalidParamException("Not support communication mode[kPubSub]");
     default:
       throw InvalidParamException("Unknown communication mode");
   }
+  return nullptr;
 }
 
 std::vector<std::unique_ptr<Node>> NodeFactory::CreateZmqInprocNode(

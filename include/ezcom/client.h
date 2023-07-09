@@ -6,7 +6,7 @@
 
 namespace ezcom {
 
-using ConnectionCallback = std::function<void(ConnectionEvent)>;
+using ConnectionCallback = std::function<void(const ConnectionEvent&)>;
 
 class Client : public Node {
  public:
