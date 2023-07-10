@@ -17,7 +17,7 @@ ReqRepServerImpl::ReqRepServerImpl(void* context,
     throw InvalidParamException("Zmq context is nullptr");
   }
   context_ = context;
-  socket_ = zmq_socket(context_, ZMQ_REQ);
+  socket_ = zmq_socket(context_, ZMQ_REP);
 }
 
 ReqRepServerImpl::ReqRepServerImpl(const TransportType& transport_type)
@@ -81,28 +81,28 @@ void ReqRepServerImpl::Bind(const std::string& addr,
 
 void ReqRepServerImpl::MsgHandle(const MessageHandler& handler) {
   while (msg_handle_running_) {
-    zmq_msg_t msg;
-    zmq_msg_init(&msg);
-    int rc = zmq_msg_recv(&msg, socket_, 0);
+    zmq_msg_t z_msg;
+    zmq_msg_init(&z_msg);
+    int rc = zmq_msg_recv(&z_msg, socket_, 0);
     if (rc == -1) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
       continue;
     }
     auto message = std::make_shared<Message>();
-    message->GetProtobufMessage()->ParseFromArray(zmq_msg_data(&msg),
-                                                  zmq_msg_size(&msg));
-    zmq_msg_close(&msg);
+    message->GetProtobufMessage()->ParseFromArray(zmq_msg_data(&z_msg),
+                                                  zmq_msg_size(&z_msg));
+    zmq_msg_close(&z_msg);
 
     auto response = handler(message);
     response->SetMsgId(message->GetMsgId());
-    zmq_msg_t resp_msg;
-    zmq_msg_init_size(&resp_msg,
+    zmq_msg_t z_rep_msg;
+    zmq_msg_init_size(&z_rep_msg,
                       response->GetProtobufMessage()->ByteSizeLong());
     response->GetProtobufMessage()->SerializeToArray(
-        zmq_msg_data(&resp_msg),
+        zmq_msg_data(&z_rep_msg),
         response->GetProtobufMessage()->ByteSizeLong());
-    zmq_msg_send(&resp_msg, socket_, 0);
-    zmq_msg_close(&resp_msg);
+    zmq_msg_send(&z_rep_msg, socket_, 0);
+    zmq_msg_close(&z_rep_msg);
   }
 }
 

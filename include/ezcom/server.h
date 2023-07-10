@@ -8,7 +8,7 @@
 
 namespace ezcom {
 
-using MessageHandler = std::function<const std::shared_ptr<Message>&(
+using MessageHandler = std::function<const std::shared_ptr<Message>(
     const std::shared_ptr<Message>&)>;
 
 class Server : public Node {

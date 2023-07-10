@@ -3,6 +3,7 @@ add_rules("mode.debug", "mode.release")
 set_defaultmode("release")
 set_warnings("all", "error")
 set_languages("c99", "c++14")
+set_installdir("./install")
 
 add_includedirs("/usr/local/include")
 add_linkdirs("/usr/local/lib")

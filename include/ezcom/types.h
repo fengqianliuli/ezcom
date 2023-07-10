@@ -25,4 +25,12 @@ enum class ConnectionEvent {
   kDisconnected = 1,
 };
 
+enum class ResultType {
+  kSuccess = 0,
+  kTimeout = 1,
+  kCommError = 2,
+  kInvaildParam = 3,
+  kUnknownError = 4,
+};
+
 }  // namespace ezcom
