@@ -4,10 +4,6 @@
 #include "proto/gen/ezcom.pb.h"
 #include "zmq.h"
 
-namespace {
-constexpr int kZmqRcvTimeout = 1000;
-}
-
 namespace ezcom {
 namespace impl {
 

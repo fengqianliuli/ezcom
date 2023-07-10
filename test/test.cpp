@@ -104,17 +104,17 @@ void sub_func() {
 int main(int argc, char const *argv[]) {
   // *****************client-server test********************
   // std::thread t1(sync_client_func);
-  // std::thread t2(async_client_func);
-  // std::thread t3(server_func);
+  std::thread t2(async_client_func);
+  std::thread t3(server_func);
   // t1.join();
-  // t2.join();
-  // t3.join();
+  t2.join();
+  t3.join();
 
 
   // *****************pub-sub test********************
-  std::thread t1(pub_func);
-  std::thread t2(sub_func);
-  t1.join();
-  t2.join();
+  // std::thread t1(pub_func);
+  // std::thread t2(sub_func);
+  // t1.join();
+  // t2.join();
   return 0;
 }

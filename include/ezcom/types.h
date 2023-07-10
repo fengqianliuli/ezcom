@@ -2,6 +2,9 @@
 
 namespace ezcom {
 
+constexpr int kZmqRcvTimeout = 1000;
+constexpr int kZmqSndTimeout = 1000;
+
 enum class NodeType {
   kClient = 0,
   kServer = 1,

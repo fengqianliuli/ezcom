@@ -143,18 +143,21 @@ Result ClientImpl::SyncRequest(const std::shared_ptr<Message>& req_message,
   msg_queue_->Enqueue(
       {req_message, [this](const std::shared_ptr<Message>& rep_message) {
          promise_map_->at(rep_message->GetMsgId()).first.set_value(rep_message);
-         promise_map_->erase(rep_message->GetMsgId());
          msg_id_set_->erase(rep_message->GetMsgId());
        }});
   // wait callback in timeout
   if (timeout_ms <= 0) {
-    return {ResultType::kSuccess, promise_map_->at(msg_id).second.get()};
+    auto& tmp_msg = promise_map_->at(msg_id).second.get();
+    promise_map_->erase(msg_id);
+    return {ResultType::kSuccess, tmp_msg};
   } else {
     auto status = promise_map_->at(msg_id).second.wait_for(
         std::chrono::milliseconds(timeout_ms));
     switch (status) {
       case std::future_status::ready: {
-        return {ResultType::kSuccess, promise_map_->at(msg_id).second.get()};
+        auto& tmp_msg = promise_map_->at(msg_id).second.get();
+        promise_map_->erase(msg_id);
+        return {ResultType::kSuccess, tmp_msg};
       } break;
       case std::future_status::timeout: {
         return {ResultType::kTimeout, nullptr};

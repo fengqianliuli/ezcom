@@ -25,11 +25,14 @@ ServerImpl::ServerImpl(const TransportType& transport_type)
 ServerImpl::~ServerImpl() {
   // stop message handle thread
   msg_handle_running_ = false;
-  auto thread_handle = msg_handle_thread_->native_handle();
-  if (msg_handle_thread_ != nullptr) {
-    msg_handle_thread_->detach();
-    pthread_cancel(thread_handle);
+  if (msg_handle_thread_->joinable()) {
+    msg_handle_thread_->join();
   }
+  // auto thread_handle = msg_handle_thread_->native_handle();
+  // if (msg_handle_thread_ != nullptr) {
+  //   msg_handle_thread_->detach();
+  //   pthread_cancel(thread_handle);
+  // }
 
   // destory zmq resources
   zmq_close(socket_);
@@ -48,8 +51,16 @@ void ServerImpl::Bind(const std::string& addr, const MessageHandler& handler) {
   if (msg_handle_running_) {
     throw ResourceException("Message handle thread already is running");
   }
-  // bind socket
+
   int rc = -1;
+  // set socketopt
+  rc = zmq_setsockopt(socket_, ZMQ_RCVTIMEO, &kZmqRcvTimeout,
+                      sizeof(kZmqRcvTimeout));
+  if (rc != 0) {
+    throw ResourceException("Zmq setsockopt failed");
+  }
+
+  // bind socket
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
       rc = zmq_bind(socket_, ("inproc://" + addr).c_str());
@@ -83,8 +94,10 @@ void ServerImpl::MsgHandle(const MessageHandler& handler) {
     zmq_msg_init(&z_msg);
     int rc = zmq_msg_recv(&z_msg, socket_, 0);
     if (rc == -1) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      continue;
+      if (zmq_errno() == EAGAIN) {
+        continue;
+      }
+      throw ResourceException("Zmq recv failed");
     }
     auto message = std::make_shared<Message>();
     message->GetProtobufMessage()->ParseFromArray(zmq_msg_data(&z_msg),
