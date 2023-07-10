@@ -19,13 +19,13 @@ struct MsgPack {
   ReturnMsgCb return_msg_cb;
 };
 
-class ReqRepClientImpl : public Client {
+class ClientImpl : public Client {
  public:
-  ReqRepClientImpl(const TransportType& transport_type);
-  ReqRepClientImpl(void* context, const TransportType& transport_type);
-  ReqRepClientImpl(const ReqRepClientImpl&) = delete;
-  ReqRepClientImpl& operator=(const ReqRepClientImpl&) = delete;
-  ~ReqRepClientImpl();
+  ClientImpl(const TransportType& transport_type);
+  ClientImpl(void* context, const TransportType& transport_type);
+  ClientImpl(const ClientImpl&) = delete;
+  ClientImpl& operator=(const ClientImpl&) = delete;
+  ~ClientImpl();
   void Connect(const std::string& addr,
                const ConnectionCallback& conn_cb = nullptr) override;
   Result SyncRequest(const std::shared_ptr<Message>& req_message,

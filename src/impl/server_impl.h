@@ -9,13 +9,13 @@
 namespace ezcom {
 namespace impl {
 
-class ReqRepServerImpl : public Server {
+class ServerImpl : public Server {
  public:
-  ReqRepServerImpl(void* context, const TransportType& transport_type);
-  ReqRepServerImpl(const TransportType& transport_type);
-  ReqRepServerImpl(const ReqRepServerImpl&) = delete;
-  ReqRepServerImpl& operator=(const ReqRepServerImpl&) = delete;
-  ~ReqRepServerImpl();
+  ServerImpl(void* context, const TransportType& transport_type);
+  ServerImpl(const TransportType& transport_type);
+  ServerImpl(const ServerImpl&) = delete;
+  ServerImpl& operator=(const ServerImpl&) = delete;
+  ~ServerImpl();
 
   void Bind(const std::string& addr, const MessageHandler& handler) override;
 

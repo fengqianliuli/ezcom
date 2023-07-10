@@ -1,6 +1,4 @@
-#include "reqrep_client_impl.h"
-
-#include <iostream>
+#include "client_impl.h"
 
 #include "ezcom/exception.h"
 #include "proto/gen/ezcom.pb.h"
@@ -11,10 +9,10 @@
 namespace ezcom {
 namespace impl {
 
-ReqRepClientImpl::ReqRepClientImpl(const TransportType& transport_type)
-    : ReqRepClientImpl(zmq_ctx_new(), transport_type) {}
+ClientImpl::ClientImpl(const TransportType& transport_type)
+    : ClientImpl(zmq_ctx_new(), transport_type) {}
 
-ReqRepClientImpl::ReqRepClientImpl(void* context,
+ClientImpl::ClientImpl(void* context,
                                    const TransportType& transport_type) {
   node_type_ = NodeType::kClient;
   comm_mode_ = CommMode::kReqRep;
@@ -32,11 +30,11 @@ ReqRepClientImpl::ReqRepClientImpl(void* context,
   msg_id_set_ = std::make_shared<std::set<uint64_t>>();
   promise_map_ = std::make_shared<PromiseMap>();
   msg_send_thread_ =
-      std::make_shared<std::thread>(&ReqRepClientImpl::MsgSendLoop, this);
+      std::make_shared<std::thread>(&ClientImpl::MsgSendLoop, this);
   utils::TimerScheduler::run();
 }
 
-ReqRepClientImpl::~ReqRepClientImpl() {
+ClientImpl::~ClientImpl() {
   utils::TimerScheduler::reset();
   promise_map_->clear();
   msg_queue_->BreakAllWait();
@@ -55,7 +53,7 @@ ReqRepClientImpl::~ReqRepClientImpl() {
   }
 }
 
-void ReqRepClientImpl::MsgSendLoop() {
+void ClientImpl::MsgSendLoop() {
   MsgPack msg_pack;
   while (msg_queue_->WaitDequeue(&msg_pack)) {
     auto& req_msg = msg_pack.req_message;
@@ -87,7 +85,7 @@ void ReqRepClientImpl::MsgSendLoop() {
   }
 }
 
-void ReqRepClientImpl::Connect(const std::string& addr,
+void ClientImpl::Connect(const std::string& addr,
                                const ConnectionCallback& conn_cb) {
   int rc = -1;
   switch (transport_type_) {
@@ -125,7 +123,7 @@ void ReqRepClientImpl::Connect(const std::string& addr,
   }
 }
 
-Result ReqRepClientImpl::SyncRequest(
+Result ClientImpl::SyncRequest(
     const std::shared_ptr<Message>& req_message, int timeout_ms) {
   if (req_message == nullptr) {
     return {ResultType::kInvaildParam, nullptr};
@@ -170,7 +168,7 @@ Result ReqRepClientImpl::SyncRequest(
   return {ResultType::kUnknownError, nullptr};
 }
 
-void ReqRepClientImpl::AsyncRequest(const std::shared_ptr<Message>& req_message,
+void ClientImpl::AsyncRequest(const std::shared_ptr<Message>& req_message,
                                     const ResultCallback& result_cb,
                                     int timeout_ms) {
   if (req_message == nullptr) {

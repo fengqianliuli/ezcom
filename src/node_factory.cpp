@@ -1,8 +1,8 @@
 #include "ezcom/node_factory.h"
 
 #include "ezcom/exception.h"
-#include "impl/reqrep_client_impl.h"
-#include "impl/reqrep_server_impl.h"
+#include "impl/client_impl.h"
+#include "impl/server_impl.h"
 
 namespace ezcom {
 
@@ -43,9 +43,9 @@ std::unique_ptr<Node> NodeFactory::CreateNode(
   switch (comm_mode) {
     case CommMode::kReqRep: {
       if (node_type == NodeType::kClient) {
-        return std::make_unique<impl::ReqRepClientImpl>(transport_type);
+        return std::make_unique<impl::ClientImpl>(transport_type);
       } else if (node_type == NodeType::kServer) {
-        return std::make_unique<impl::ReqRepServerImpl>(transport_type);
+        return std::make_unique<impl::ServerImpl>(transport_type);
       }
     } break;
     case CommMode::kPubSub:

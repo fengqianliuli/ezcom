@@ -1,4 +1,4 @@
-#include "reqrep_server_impl.h"
+#include "server_impl.h"
 
 #include "ezcom/exception.h"
 #include "proto/gen/ezcom.pb.h"
@@ -7,7 +7,7 @@
 namespace ezcom {
 namespace impl {
 
-ReqRepServerImpl::ReqRepServerImpl(void* context,
+ServerImpl::ServerImpl(void* context,
                                    const TransportType& transport_type) {
   node_type_ = NodeType::kServer;
   comm_mode_ = CommMode::kReqRep;
@@ -20,10 +20,10 @@ ReqRepServerImpl::ReqRepServerImpl(void* context,
   socket_ = zmq_socket(context_, ZMQ_REP);
 }
 
-ReqRepServerImpl::ReqRepServerImpl(const TransportType& transport_type)
-    : ReqRepServerImpl(zmq_ctx_new(), transport_type) {}
+ServerImpl::ServerImpl(const TransportType& transport_type)
+    : ServerImpl(zmq_ctx_new(), transport_type) {}
 
-ReqRepServerImpl::~ReqRepServerImpl() {
+ServerImpl::~ServerImpl() {
   // stop message handle thread
   msg_handle_running_ = false;
   auto thread_handle = msg_handle_thread_->native_handle();
@@ -39,7 +39,7 @@ ReqRepServerImpl::~ReqRepServerImpl() {
   }
 }
 
-void ReqRepServerImpl::Bind(const std::string& addr,
+void ServerImpl::Bind(const std::string& addr,
                             const MessageHandler& handler) {
   if (addr.empty()) {
     throw InvalidParamException("Invalid addr");
@@ -76,10 +76,10 @@ void ReqRepServerImpl::Bind(const std::string& addr,
   // start message handle thread
   msg_handle_running_ = true;
   msg_handle_thread_ = std::make_shared<std::thread>(
-      std::bind(&ReqRepServerImpl::MsgHandle, this, handler));
+      std::bind(&ServerImpl::MsgHandle, this, handler));
 }
 
-void ReqRepServerImpl::MsgHandle(const MessageHandler& handler) {
+void ServerImpl::MsgHandle(const MessageHandler& handler) {
   while (msg_handle_running_) {
     zmq_msg_t z_msg;
     zmq_msg_init(&z_msg);
