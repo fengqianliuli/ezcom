@@ -7,8 +7,7 @@
 namespace ezcom {
 namespace impl {
 
-ServerImpl::ServerImpl(void* context,
-                                   const TransportType& transport_type) {
+ServerImpl::ServerImpl(void* context, const TransportType& transport_type) {
   node_type_ = NodeType::kServer;
   comm_mode_ = CommMode::kReqRep;
   transport_type_ = transport_type;
@@ -39,8 +38,7 @@ ServerImpl::~ServerImpl() {
   }
 }
 
-void ServerImpl::Bind(const std::string& addr,
-                            const MessageHandler& handler) {
+void ServerImpl::Bind(const std::string& addr, const MessageHandler& handler) {
   if (addr.empty()) {
     throw InvalidParamException("Invalid addr");
   }

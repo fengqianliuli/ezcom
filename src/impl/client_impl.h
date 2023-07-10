@@ -2,9 +2,9 @@
 
 #include <atomic>
 #include <future>
-#include <thread>
 #include <map>
 #include <set>
+#include <thread>
 
 #include "ezcom/client.h"
 #include "utils/thread_safe_queue.h"

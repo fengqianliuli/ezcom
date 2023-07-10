@@ -12,8 +12,7 @@ namespace impl {
 ClientImpl::ClientImpl(const TransportType& transport_type)
     : ClientImpl(zmq_ctx_new(), transport_type) {}
 
-ClientImpl::ClientImpl(void* context,
-                                   const TransportType& transport_type) {
+ClientImpl::ClientImpl(void* context, const TransportType& transport_type) {
   node_type_ = NodeType::kClient;
   comm_mode_ = CommMode::kReqRep;
   transport_type_ = transport_type;
@@ -30,7 +29,7 @@ ClientImpl::ClientImpl(void* context,
   msg_id_set_ = std::make_shared<std::set<uint64_t>>();
   promise_map_ = std::make_shared<PromiseMap>();
   msg_send_thread_ =
-      std::make_shared<std::thread>(&ClientImpl::MsgSendLoop, this);
+      std::make_shared<std::thread>(std::bind(&ClientImpl::MsgSendLoop, this));
   utils::TimerScheduler::run();
 }
 
@@ -86,7 +85,7 @@ void ClientImpl::MsgSendLoop() {
 }
 
 void ClientImpl::Connect(const std::string& addr,
-                               const ConnectionCallback& conn_cb) {
+                         const ConnectionCallback& conn_cb) {
   int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
@@ -123,8 +122,8 @@ void ClientImpl::Connect(const std::string& addr,
   }
 }
 
-Result ClientImpl::SyncRequest(
-    const std::shared_ptr<Message>& req_message, int timeout_ms) {
+Result ClientImpl::SyncRequest(const std::shared_ptr<Message>& req_message,
+                               int timeout_ms) {
   if (req_message == nullptr) {
     return {ResultType::kInvaildParam, nullptr};
   }
@@ -169,8 +168,7 @@ Result ClientImpl::SyncRequest(
 }
 
 void ClientImpl::AsyncRequest(const std::shared_ptr<Message>& req_message,
-                                    const ResultCallback& result_cb,
-                                    int timeout_ms) {
+                              const ResultCallback& result_cb, int timeout_ms) {
   if (req_message == nullptr) {
     result_cb({ResultType::kInvaildParam, nullptr});
     return;

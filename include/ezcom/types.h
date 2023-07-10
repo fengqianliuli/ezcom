@@ -5,8 +5,8 @@ namespace ezcom {
 enum class NodeType {
   kClient = 0,
   kServer = 1,
-  kPub = 2,
-  kSub = 3,
+  kPublisher = 2,
+  kSubscriber = 3,
 };
 
 enum class CommMode {

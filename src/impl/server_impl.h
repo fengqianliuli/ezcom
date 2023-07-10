@@ -1,8 +1,8 @@
 #pragma once
 
 #include <atomic>
-#include <thread>
 #include <memory>
+#include <thread>
 
 #include "ezcom/server.h"
 
