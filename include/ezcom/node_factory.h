@@ -4,7 +4,9 @@
 #include <vector>
 
 #include "client.h"
+#include "publisher.h"
 #include "server.h"
+#include "subscriber.h"
 
 namespace ezcom {
 
@@ -14,16 +16,18 @@ class NodeFactory {
       const TransportType& transport_type);
   static std::unique_ptr<Server> CreateServer(
       const TransportType& transport_type);
-  static void CreateZmqInprocNodes(int node_num, std::unique_ptr<Server>* server,
-      std::vector<std::unique_ptr<Client>*>& clients);
+  // TODO: inproc
+  //   static void CreateZmqInprocNodes(int node_num, std::unique_ptr<Server>*
+  //   server,
+  //       std::vector<std::unique_ptr<Client>*>& clients);
 
-  // TODO: PUB-SUB
-  // static std::unique_ptr<Pub> CreatePub(
-  //     const TransportType& transport_type);
-  // static std::unique_ptr<Sub> CreateSub(
-  //     const TransportType& transport_type);
-  // static void CreateZmqInprocNodes(int node_num, std::unique_ptr<Pub>* pub,
-  //     std::vector<std::unique_ptr<Sub>*>& subs);
+  static std::unique_ptr<Publisher> CreatePublisher(
+      const TransportType& transport_type);
+  static std::unique_ptr<Subscriber> CreateSubscriber(
+      const TransportType& transport_type);
+  // TODO: inproc
+  //   static void CreateZmqInprocNodes(int node_num, std::unique_ptr<Pub>* pub,
+  //       std::vector<std::unique_ptr<Sub>*>& subs);
  private:
   static std::unique_ptr<Node> CreateNode(const NodeType& node_type,
                                           const CommMode& comm_mode,

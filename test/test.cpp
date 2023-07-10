@@ -81,12 +81,40 @@ void async_client_func() {
 
 }
 
+void pub_func() {
+  auto pub = NodeFactory::CreatePublisher(TransportType::kZmqTcp);
+  pub->Bind("127.0.0.1:7788");
+  for (int i = 0; i  < 10; i++) {
+    auto msg = std::make_shared<Message>();
+    msg->AddInt32(99);
+    pub->Publish(msg, "test_topic");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
+
+void sub_func() {
+  auto sub = NodeFactory::CreateSubscriber(TransportType::kZmqTcp);
+  sub->Subscribe("127.0.0.1:7788", [](const std::shared_ptr<Message> &msg) {
+    std::cout << "recv msg: " << msg->GetInt32(0) << std::endl;
+  }, "test_topic");
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+}
+
 int main(int argc, char const *argv[]) {
+  // *****************client-server test********************
   // std::thread t1(sync_client_func);
-  std::thread t2(async_client_func);
-  std::thread t3(server_func);
+  // std::thread t2(async_client_func);
+  // std::thread t3(server_func);
   // t1.join();
+  // t2.join();
+  // t3.join();
+
+
+  // *****************pub-sub test********************
+  std::thread t1(pub_func);
+  std::thread t2(sub_func);
+  t1.join();
   t2.join();
-  t3.join();
   return 0;
 }

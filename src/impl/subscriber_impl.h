@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <thread>
 
 #include "ezcom/subscriber.h"
@@ -24,6 +25,8 @@ class SubscriberImpl : public Subscriber {
  private:
   void* context_;
   void* socket_;
+  std::string topic_{""};
+  std::atomic_bool recv_running_{false};
   std::shared_ptr<std::thread> recv_thread_;
 };
 
