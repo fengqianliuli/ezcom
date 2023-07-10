@@ -36,7 +36,7 @@ PROTOBUF_CONSTEXPR ProtobufMessage::ProtobufMessage(
   , bool_type_()
   , string_type_()
   , bytes_type_()
-  , msg_id_(int64_t{0}){}
+  , msg_id_(uint64_t{0u}){}
 struct ProtobufMessageDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ProtobufMessageDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -79,7 +79,7 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_ezcom_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\013ezcom.proto\022\005ezcom\"\330\001\n\017ProtobufMessage"
-  "\022\016\n\006msg_id\030\001 \001(\003\022\022\n\nint32_type\030\002 \003(\005\022\022\n\n"
+  "\022\016\n\006msg_id\030\001 \001(\004\022\022\n\nint32_type\030\002 \003(\005\022\022\n\n"
   "int64_type\030\003 \003(\003\022\023\n\013uint32_type\030\004 \003(\r\022\023\n"
   "\013uint64_type\030\005 \003(\004\022\022\n\nfloat_type\030\006 \003(\002\022\023"
   "\n\013double_type\030\007 \003(\001\022\021\n\tbool_type\030\010 \003(\010\022\023"
@@ -141,7 +141,7 @@ ProtobufMessage::ProtobufMessage(const ProtobufMessage& from)
 }
 
 inline void ProtobufMessage::SharedCtor() {
-msg_id_ = int64_t{0};
+msg_id_ = uint64_t{0u};
 }
 
 ProtobufMessage::~ProtobufMessage() {
@@ -176,7 +176,7 @@ void ProtobufMessage::Clear() {
   bool_type_.Clear();
   string_type_.Clear();
   bytes_type_.Clear();
-  msg_id_ = int64_t{0};
+  msg_id_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -186,7 +186,7 @@ const char* ProtobufMessage::_InternalParse(const char* ptr, ::_pbi::ParseContex
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int64 msg_id = 1;
+      // uint64 msg_id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           msg_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
@@ -329,10 +329,10 @@ uint8_t* ProtobufMessage::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int64 msg_id = 1;
+  // uint64 msg_id = 1;
   if (this->_internal_msg_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt64ToArray(1, this->_internal_msg_id(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_msg_id(), target);
   }
 
   // repeated int32 int32_type = 2;
@@ -523,9 +523,9 @@ size_t ProtobufMessage::ByteSizeLong() const {
       bytes_type_.Get(i));
   }
 
-  // int64 msg_id = 1;
+  // uint64 msg_id = 1;
   if (this->_internal_msg_id() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_msg_id());
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_msg_id());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);

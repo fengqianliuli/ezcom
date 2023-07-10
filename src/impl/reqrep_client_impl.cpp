@@ -4,6 +4,7 @@
 
 #include "ezcom/exception.h"
 #include "proto/gen/ezcom.pb.h"
+#include "utils/timer_scheduler.h"
 #include "utils/zmq_utils.h"
 #include "zmq.h"
 
@@ -27,12 +28,17 @@ ReqRepClientImpl::ReqRepClientImpl(void* context,
   // Create zmq monitor
   monitor_socket_ = utils::ZmqUtils::CreateMonitorSockets(context_, socket_,
                                                           "req-rep-client");
-  msg_queue_ = std::make_shared<ThreadSafeQueue<impl::MsgPack>>();
+  msg_queue_ = std::make_shared<utils::ThreadSafeQueue<impl::MsgPack>>();
+  msg_id_set_ = std::make_shared<std::set<uint64_t>>();
+  promise_map_ = std::make_shared<PromiseMap>();
   msg_send_thread_ =
       std::make_shared<std::thread>(&ReqRepClientImpl::MsgSendLoop, this);
+  utils::TimerScheduler::run();
 }
 
 ReqRepClientImpl::~ReqRepClientImpl() {
+  utils::TimerScheduler::reset();
+  promise_map_->clear();
   msg_queue_->BreakAllWait();
   if (msg_send_thread_->joinable()) {
     msg_send_thread_->join();
@@ -124,20 +130,34 @@ Result ReqRepClientImpl::SyncRequest(
   if (req_message == nullptr) {
     return {ResultType::kInvaildParam, nullptr};
   }
+  // generate msg id
+  uint64_t msg_id = msg_id_.fetch_add(1);
+  msg_id_set_->insert(msg_id);
+  req_message->SetMsgId(msg_id);
+  // create promise and future
   std::promise<const std::shared_ptr<Message>&> promise;
   auto future = promise.get_future();
+  // when client timeout and return, but server msg reply call the function.
+  // promise_map will be erase promise by msg id.
+  // future could not be destroyed when client timeout and return,
+  // promise and future must be destroyed together when server reply msg back.
+  promise_map_->emplace(msg_id,
+                        std::make_pair(std::move(promise), std::move(future)));
   msg_queue_->Enqueue(
-      {req_message, [&promise](const std::shared_ptr<Message>& rep_message) {
-         promise.set_value(rep_message);
+      {req_message, [this](const std::shared_ptr<Message>& rep_message) {
+         promise_map_->at(rep_message->GetMsgId()).first.set_value(rep_message);
+         promise_map_->erase(rep_message->GetMsgId());
+         msg_id_set_->erase(rep_message->GetMsgId());
        }});
   // wait callback in timeout
   if (timeout_ms <= 0) {
-    return {ResultType::kSuccess, future.get()};
+    return {ResultType::kSuccess, promise_map_->at(msg_id).second.get()};
   } else {
-    auto status = future.wait_for(std::chrono::milliseconds(timeout_ms));
+    auto status = promise_map_->at(msg_id).second.wait_for(
+        std::chrono::milliseconds(timeout_ms));
     switch (status) {
       case std::future_status::ready: {
-        return {ResultType::kSuccess, future.get()};
+        return {ResultType::kSuccess, promise_map_->at(msg_id).second.get()};
       } break;
       case std::future_status::timeout: {
         return {ResultType::kTimeout, nullptr};
@@ -157,15 +177,36 @@ void ReqRepClientImpl::AsyncRequest(const std::shared_ptr<Message>& req_message,
     result_cb({ResultType::kInvaildParam, nullptr});
     return;
   }
-  // std::promise<const std::shared_ptr<Message>&> promise;
-  // auto future = promise.get_future();
-  // msg_queue_->Enqueue(
-  //     {req_message, [&result_cb, &promise](const std::shared_ptr<Message>& rep_message) {
+  // generate msg id
+  uint64_t msg_id = msg_id_.fetch_add(1);
+  msg_id_set_->insert(msg_id);
+  req_message->SetMsgId(msg_id);
+  // timing, if request timeout, timer will call function and return timeout
+  utils::TimerScheduler::TimerHandle time_handle{-1};
+  if (timeout_ms > 0) {
+    time_handle = utils::TimerScheduler::addTimer(
+        std::chrono::milliseconds(timeout_ms),
+        [this, &result_cb, msg_id](utils::TimerScheduler::TimerHandle handle) {
+          utils::TimerScheduler::removeTimer(handle);
+          msg_id_set_->erase(msg_id);
+          result_cb({ResultType::kTimeout, nullptr});
+        });
+  }
 
-  //       result_cb({ResultType::kSuccess, rep_message});
-  //      }});
-
-
+  // when client timeout and return, but server msg reply call the function.
+  // so, need to check msg id has been erase.
+  msg_queue_->Enqueue(
+      {req_message, [this, &result_cb, time_handle,
+                     timeout_ms](const std::shared_ptr<Message>& rep_message) {
+         if (msg_id_set_->find(rep_message->GetMsgId()) == msg_id_set_->end()) {
+           return;
+         }
+         if (timeout_ms > 0) {
+           utils::TimerScheduler::removeTimer(time_handle);
+         }
+         msg_id_set_->erase(rep_message->GetMsgId());
+         result_cb({ResultType::kSuccess, rep_message});
+       }});
 }
 
 }  // namespace impl

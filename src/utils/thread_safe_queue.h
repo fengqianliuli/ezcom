@@ -7,6 +7,7 @@
 #include <utility>
 
 namespace ezcom {
+namespace utils {
 
 template <typename T>
 class ThreadSafeQueue {
@@ -66,4 +67,5 @@ class ThreadSafeQueue {
   std::condition_variable cv_;
 };
 
+}  // namespace utils
 }  // namespace ezcom

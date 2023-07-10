@@ -7,11 +7,11 @@ Message::Message() {
   proto_msg_ = std::make_shared<ProtobufMessage>();
 }
 
-void Message::SetMsgId(const int64_t& msg_id) {
+void Message::SetMsgId(const uint64_t& msg_id) {
   proto_msg_->set_msg_id(msg_id);
 }
 
-int64_t Message::GetMsgId() const {
+uint64_t Message::GetMsgId() const {
   return proto_msg_->msg_id();
 }
 

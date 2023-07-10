@@ -16,8 +16,8 @@ class Message final {
   Message(Message&&) = delete;
   Message& operator=(Message&&) = delete;
 
-  int64_t GetMsgId() const;
-  void SetMsgId(const int64_t& msg_id);
+  uint64_t GetMsgId() const;
+  void SetMsgId(const uint64_t& msg_id);
   std::shared_ptr<ProtobufMessage> GetProtobufMessage() const;
 
   void AddInt32(const int32_t& value);

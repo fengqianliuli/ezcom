@@ -3,7 +3,7 @@ syntax = "proto3";
 package ezcom;
 
 message ProtobufMessage {
-  int64 msg_id = 1;
+  uint64 msg_id = 1;
   repeated int32 int32_type = 2;
   repeated int64 int64_type = 3;
   repeated uint32 uint32_type = 4;

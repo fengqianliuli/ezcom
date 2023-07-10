@@ -3,6 +3,8 @@
 #include <atomic>
 #include <future>
 #include <thread>
+#include <map>
+#include <set>
 
 #include "ezcom/client.h"
 #include "utils/thread_safe_queue.h"
@@ -42,8 +44,14 @@ class ReqRepClientImpl : public Client {
   std::future<void> monitor_future_;
   std::atomic_bool monitor_running_{false};
 
-  std::shared_ptr<ThreadSafeQueue<impl::MsgPack>> msg_queue_;
+  std::atomic_uint64_t msg_id_{1};
+  std::shared_ptr<std::set<uint64_t>> msg_id_set_;
+  std::shared_ptr<utils::ThreadSafeQueue<impl::MsgPack>> msg_queue_;
   std::shared_ptr<std::thread> msg_send_thread_;
+  using PromiseMap =
+      std::map<int, std::pair<std::promise<const std::shared_ptr<Message>&>,
+                              std::future<const std::shared_ptr<Message>&>>>;
+  std::shared_ptr<PromiseMap> promise_map_;
 };
 
 }  // namespace impl
