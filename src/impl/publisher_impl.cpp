@@ -32,6 +32,10 @@ PublisherImpl::~PublisherImpl() {
 }
 
 void PublisherImpl::Bind(const std::string& addr) {
+  static std::atomic_bool bind{false};
+  if (bind) {
+    throw AlreadyDoneException("Publisher has already been bound");
+  }
   if (addr.empty()) {
     throw InvalidParamException("Invalid addr");
   }
@@ -57,6 +61,7 @@ void PublisherImpl::Bind(const std::string& addr) {
   if (rc != 0) {
     throw ResourceException("Zmq bind failed");
   }
+  bind = true;
 }
 
 void PublisherImpl::Publish(const std::shared_ptr<Message>& msg,

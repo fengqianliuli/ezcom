@@ -39,8 +39,15 @@ SubscriberImpl::~SubscriberImpl() {
 void SubscriberImpl::Subscribe(const std::string& addr,
                                const MsgCallback& msg_cb,
                                const std::string& topic) {
+  static std::atomic_bool connect{false};
+  if (connect) {
+    throw AlreadyDoneException("Subscriber has already been connected");
+  }
   if (addr.empty()) {
     throw InvalidParamException("Invalid addr");
+  }
+  if (msg_cb == nullptr) {
+    throw InvalidParamException("Invalid msg callback function");
   }
   topic_ = topic;
   int rc = -1;
@@ -73,6 +80,7 @@ void SubscriberImpl::Subscribe(const std::string& addr,
   if (rc != 0) {
     throw ResourceException("Zmq connect failed");
   }
+  connect = true;
   recv_running_ = true;
   recv_thread_ = std::make_shared<std::thread>(
       std::bind(&SubscriberImpl::RecvThread, this, msg_cb));

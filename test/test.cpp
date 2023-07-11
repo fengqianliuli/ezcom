@@ -15,7 +15,7 @@ void server_func() {
                     auto reply_msg = std::make_shared<Message>();
                     reply_msg->AddInt32(msg->GetInt32(0) + 1);
 
-                    std::this_thread::sleep_for(std::chrono::seconds(5));
+                    // std::this_thread::sleep_for(std::chrono::seconds(5));
                     return reply_msg;
                   });
   std::cout << "CreateServer already return ..." << std::endl;
@@ -61,6 +61,13 @@ void async_client_func() {
                          promise.set_value(true);
                        }
                      });
+  // test muti connect
+  // client_up->Connect("127.0.0.1:8899",
+  //                   [&promise](const ConnectionEvent &event) {
+  //                     if (event == ConnectionEvent::kConnected) {
+  //                       promise.set_value(true);
+  //                     }
+  //                   });
   std::cout << "CreateClient already return ..." << std::endl;
 
   if (future.get()) {

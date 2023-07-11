@@ -28,11 +28,6 @@ ServerImpl::~ServerImpl() {
   if (msg_handle_thread_->joinable()) {
     msg_handle_thread_->join();
   }
-  // auto thread_handle = msg_handle_thread_->native_handle();
-  // if (msg_handle_thread_ != nullptr) {
-  //   msg_handle_thread_->detach();
-  //   pthread_cancel(thread_handle);
-  // }
 
   // destory zmq resources
   zmq_close(socket_);
@@ -42,6 +37,10 @@ ServerImpl::~ServerImpl() {
 }
 
 void ServerImpl::Bind(const std::string& addr, const MessageHandler& handler) {
+  static std::atomic_bool bind{false};
+  if (bind) {
+    throw AlreadyDoneException("Server has already been bound");
+  }
   if (addr.empty()) {
     throw InvalidParamException("Invalid addr");
   }
@@ -81,6 +80,7 @@ void ServerImpl::Bind(const std::string& addr, const MessageHandler& handler) {
   if (rc != 0) {
     throw ResourceException("Zmq bind failed");
   }
+  bind = true;
 
   // start message handle thread
   msg_handle_running_ = true;

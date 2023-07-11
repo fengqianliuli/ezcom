@@ -86,6 +86,13 @@ void ClientImpl::MsgSendLoop() {
 
 void ClientImpl::Connect(const std::string& addr,
                          const ConnectionCallback& conn_cb) {
+  static std::atomic_bool connect{false};
+  if (connect) {
+    throw AlreadyDoneException("Client has already been connected");
+  }
+  if (addr.empty()) {
+    throw InvalidParamException("Invalid addr");
+  }
   int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
@@ -107,6 +114,7 @@ void ClientImpl::Connect(const std::string& addr,
   if (rc != 0) {
     throw ResourceException("Zmq connect failed");
   }
+  connect = true;
   if (conn_cb) {
     monitor_running_ = true;
     monitor_future_ = std::async(std::launch::async, [this, conn_cb]() {

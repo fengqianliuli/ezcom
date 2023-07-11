@@ -19,4 +19,9 @@ class ResourceException : public Exception {
   ResourceException(const std::string& msg) : Exception(msg) {}
 };
 
+class AlreadyDoneException : public Exception {
+ public:
+  AlreadyDoneException(const std::string& msg) : Exception(msg) {}
+};
+
 }  // namespace ezcom
