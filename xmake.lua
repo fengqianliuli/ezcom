@@ -19,10 +19,5 @@ target("ezcom")
         os.exec("echo 'generate ezcom.proto file done'")
     end)
 
-target("ezcom_test")
-    set_kind("binary")
-    add_deps("ezcom")
-    add_files("test/test.cpp")
-    add_includedirs("$(projectdir)/include")
-    add_links("ezcom", "protobuf", "pthread")
+includes("example")
 
