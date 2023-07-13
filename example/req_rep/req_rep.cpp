@@ -55,9 +55,9 @@ void sync_client_func() {
     // you can check [ResultType] to see if request success and why request
     // failed if success, you can get reply message from [rep_message] if
     // failed, [rep_message] will be nullptr
-    std::cout << "result enum: " << (int)result.res_type << std::endl;
+    std::cout << "sync result enum: " << (int)result.res_type << std::endl;
     if (result.res_type == ResultType::kSuccess) {
-      std::cout << "result reply: " << result.rep_message->GetInt32(0)
+      std::cout << "sync result reply: " << result.rep_message->GetInt32(0)
                 << std::endl;
     }
   }
@@ -80,7 +80,7 @@ void async_client_func() {
     std::cout << "async client connect success" << std::endl;
 
     auto msg = std::make_shared<Message>();
-    msg->AddInt32(99);
+    msg->AddInt32(101);
     // async request message to server and setting callback function and
     // timeout(ms). timeout default value is -1 means wait forever
     // this callback function will be called when request success or
@@ -92,10 +92,11 @@ void async_client_func() {
     client_up->AsyncRequest(
         msg,
         [](const Result result) {
-          std::cout << "result enum: " << (int)result.res_type << std::endl;
+          std::cout << "async result enum: " << (int)result.res_type
+                    << std::endl;
           if (result.res_type == ResultType::kSuccess) {
-            std::cout << "result reply: " << result.rep_message->GetInt32(0)
-                      << std::endl;
+            std::cout << "async result reply: "
+                      << result.rep_message->GetInt32(0) << std::endl;
           }
         },
         1000);
