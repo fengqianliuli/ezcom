@@ -150,8 +150,13 @@ Result ClientImpl::SyncRequest(const std::shared_ptr<Message>& req_message,
                         std::make_pair(std::move(promise), std::move(future)));
   msg_queue_->Enqueue(
       {req_message, [this](const std::shared_ptr<Message>& rep_message) {
-         promise_map_->at(rep_message->GetMsgId()).first.set_value(rep_message);
-         msg_id_set_->erase(rep_message->GetMsgId());
+         if (promise_map_ != nullptr &&
+             promise_map_->find(rep_message->GetMsgId()) !=
+                 promise_map_->end()) {
+           promise_map_->at(rep_message->GetMsgId())
+               .first.set_value(rep_message);
+           msg_id_set_->erase(rep_message->GetMsgId());
+         }
        }});
   // wait callback in timeout
   if (timeout_ms <= 0) {
