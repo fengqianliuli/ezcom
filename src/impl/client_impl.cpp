@@ -93,6 +93,29 @@ void ClientImpl::Connect(const std::string& addr,
   if (addr.empty()) {
     throw InvalidParamException("Invalid addr");
   }
+
+  // set keep alive trun on
+  int tcp_keep_alive = 1;
+  // set keep alive idle, unit: s
+  int tcp_keep_alive_idle = 120;
+  // set keep alive count, unit: times
+  int tcp_keep_alive_count = 3;
+  // set keep alive interval, unit: s
+  int tcp_keep_alive_interval = 5;
+  int setopt_rc = 0;
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE, &tcp_keep_alive,
+                       sizeof(tcp_keep_alive));
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE_IDLE, &tcp_keep_alive_idle,
+                       sizeof(tcp_keep_alive_idle));
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE_CNT, &tcp_keep_alive_count,
+                       sizeof(tcp_keep_alive_count));
+  setopt_rc +=
+      zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE_INTVL, &tcp_keep_alive_interval,
+                     sizeof(tcp_keep_alive_interval));
+  if (setopt_rc != 0) {
+    throw ResourceException("Zmq setsockopt failed");
+  }
+
   int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {

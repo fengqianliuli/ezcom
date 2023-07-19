@@ -50,16 +50,36 @@ void SubscriberImpl::Subscribe(const std::string& addr,
     throw InvalidParamException("Invalid msg callback function");
   }
   topic_ = topic;
-  int rc = -1;
+
   // set socketopt
-  rc = zmq_setsockopt(socket_, ZMQ_RCVTIMEO, &kZmqRcvTimeout,
+  // set keep alive trun on
+  int tcp_keep_alive = 1;
+  // set keep alive idle, unit: s
+  int tcp_keep_alive_idle = 120;
+  // set keep alive count, unit: times
+  int tcp_keep_alive_count = 3;
+  // set keep alive interval, unit: s
+  int tcp_keep_alive_interval = 5;
+  int setopt_rc = 0;
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE, &tcp_keep_alive,
+                       sizeof(tcp_keep_alive));
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE_IDLE, &tcp_keep_alive_idle,
+                       sizeof(tcp_keep_alive_idle));
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE_CNT, &tcp_keep_alive_count,
+                       sizeof(tcp_keep_alive_count));
+  setopt_rc +=
+      zmq_setsockopt(socket_, ZMQ_TCP_KEEPALIVE_INTVL, &tcp_keep_alive_interval,
+                     sizeof(tcp_keep_alive_interval));
+
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_RCVTIMEO, &kZmqRcvTimeout,
                       sizeof(kZmqRcvTimeout));
-  rc = zmq_setsockopt(socket_, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-  if (rc != 0) {
+  setopt_rc += zmq_setsockopt(socket_, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+  if (setopt_rc != 0) {
     throw ResourceException("Zmq setsockopt failed");
   }
 
   // connect socket
+  int rc = -1;
   switch (transport_type_) {
     case TransportType::kZmqInproc: {
       rc = zmq_connect(socket_, ("inproc://" + addr).c_str());
