@@ -120,10 +120,10 @@ void ClientImpl::Connect(const std::string& addr,
     monitor_future_ = std::async(std::launch::async, [this, conn_cb]() {
       while (monitor_running_) {
         int event = utils::ZmqUtils::GetMonitorEvent(monitor_socket_);
-        // 第一次connect后退出
         if (event == ZMQ_EVENT_CONNECTED) {
           conn_cb(ConnectionEvent::kConnected);
-          break;
+        } else if (event == ZMQ_EVENT_DISCONNECTED) {
+          conn_cb(ConnectionEvent::kDisconnected);
         }
       }
     });

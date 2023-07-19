@@ -20,4 +20,5 @@ target("ezcom")
     end)
 
 includes("example")
+includes("test")
 

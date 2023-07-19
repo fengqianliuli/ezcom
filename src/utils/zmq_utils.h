@@ -53,6 +53,13 @@ class ZmqUtils {
     if (monitor_socket == nullptr) {
       throw ResourceException("Failed to create monitor socket");
     }
+    // set monitor recv timeout
+    int timeout_ms = 1000;
+    rc = zmq_setsockopt(monitor_socket, ZMQ_RCVTIMEO, &timeout_ms,
+                        sizeof(timeout_ms));
+    if (rc != 0) {
+      throw ResourceException("Failed to set monitor socket opt");
+    }
     // Connect to the inproc endpoint so it'll get events
     rc = zmq_connect(monitor_socket, endpoint.c_str());
     if (rc != 0) {
