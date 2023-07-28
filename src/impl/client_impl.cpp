@@ -86,8 +86,7 @@ void ClientImpl::MsgSendLoop() {
 
 void ClientImpl::Connect(const std::string& addr,
                          const ConnectionCallback& conn_cb) {
-  static std::atomic_bool connect{false};
-  if (connect) {
+  if (connected_) {
     throw AlreadyDoneException("Client has already been connected");
   }
   if (addr.empty()) {
@@ -137,12 +136,13 @@ void ClientImpl::Connect(const std::string& addr,
   if (rc != 0) {
     throw ResourceException("Zmq connect failed");
   }
-  connect = true;
+  connected_ = true;
   if (conn_cb) {
     monitor_running_ = true;
     monitor_future_ = std::async(std::launch::async, [this, conn_cb]() {
       while (monitor_running_) {
         int event = utils::ZmqUtils::GetMonitorEvent(monitor_socket_);
+        if (event == -1) continue;
         if (event == ZMQ_EVENT_CONNECTED) {
           conn_cb(ConnectionEvent::kConnected);
         } else if (event == ZMQ_EVENT_DISCONNECTED) {
@@ -155,6 +155,9 @@ void ClientImpl::Connect(const std::string& addr,
 
 Result ClientImpl::SyncRequest(const std::shared_ptr<Message>& req_message,
                                int timeout_ms) {
+  if (!connected_) {
+    return {ResultType::kConditionCheckError, nullptr};
+  }
   if (req_message == nullptr) {
     return {ResultType::kInvaildParam, nullptr};
   }
@@ -208,6 +211,10 @@ Result ClientImpl::SyncRequest(const std::shared_ptr<Message>& req_message,
 
 void ClientImpl::AsyncRequest(const std::shared_ptr<Message>& req_message,
                               const ResultCallback& result_cb, int timeout_ms) {
+  if (!connected_) {
+    result_cb({ResultType::kConditionCheckError, nullptr});
+    return;
+  }
   if (req_message == nullptr) {
     result_cb({ResultType::kInvaildParam, nullptr});
     return;

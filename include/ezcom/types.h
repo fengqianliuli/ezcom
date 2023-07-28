@@ -33,7 +33,8 @@ enum class ResultType {
   kTimeout = 1,
   kCommError = 2,
   kInvaildParam = 3,
-  kUnknownError = 4,
+  kConditionCheckError = 4,
+  kUnknownError,
 };
 
 }  // namespace ezcom

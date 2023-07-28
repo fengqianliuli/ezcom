@@ -43,6 +43,7 @@ class ClientImpl : public Client {
   void* monitor_socket_;
   std::future<void> monitor_future_;
   std::atomic_bool monitor_running_{false};
+  std::atomic_bool connected_{false};
 
   std::atomic_uint64_t msg_id_{1};
   std::shared_ptr<std::set<uint64_t>> msg_id_set_;

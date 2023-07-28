@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 #include "ezcom/publisher.h"
 
 namespace ezcom {
@@ -20,6 +22,7 @@ class PublisherImpl : public Publisher {
  private:
   void* context_;
   void* socket_;
+  std::atomic_bool binded_{false};
 };
 
 }  // namespace impl

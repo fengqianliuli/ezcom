@@ -32,8 +32,7 @@ PublisherImpl::~PublisherImpl() {
 }
 
 void PublisherImpl::Bind(const std::string& addr) {
-  static std::atomic_bool bind{false};
-  if (bind) {
+  if (binded_) {
     throw AlreadyDoneException("Publisher has already been bound");
   }
   if (addr.empty()) {
@@ -61,11 +60,14 @@ void PublisherImpl::Bind(const std::string& addr) {
   if (rc != 0) {
     throw ResourceException("Zmq bind failed");
   }
-  bind = true;
+  binded_ = true;
 }
 
 void PublisherImpl::Publish(const std::shared_ptr<Message>& msg,
                             const std::string& topic) {
+  if (!binded_) {
+    throw ResourceException("Publisher has not been bound");
+  }
   if (msg == nullptr) {
     throw InvalidParamException("Invalid msg is nullptr");
   }
