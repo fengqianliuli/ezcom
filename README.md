@@ -2,7 +2,8 @@
 ![https://en.cppreference.com/w/cpp/14](https://img.shields.io/badge/language-C%2B%2B14-brightgreen)
 ![https://xmake.io/#/zh-cn/](https://img.shields.io/badge/xmake-v2.7.9-blue)
 ![Static Badge](https://img.shields.io/badge/license-Apache2.0-yellow?link=https%3A%2F%2Fxmake.io%2F%23%2Fzh-cn%2F)
-
+<br>
+[![Security Status](https://www.murphysec.com/platform3/v31/badge/1718826540375785472.svg)](https://www.murphysec.com/console/report/1718826540220596224/1718826540375785472)
 
 ## 概述
 
