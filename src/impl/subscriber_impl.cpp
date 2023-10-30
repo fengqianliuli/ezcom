@@ -112,6 +112,7 @@ void SubscriberImpl::RecvThread(const MsgCallback& msg_cb) {
     zmq_msg_init(&z_msg);
     int rc = zmq_msg_recv(&z_msg, socket_, 0);
     if (rc == -1) {
+      zmq_msg_close(&z_msg);
       if (zmq_errno() == EAGAIN) {
         continue;
       }
